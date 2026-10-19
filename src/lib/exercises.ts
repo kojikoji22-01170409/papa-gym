@@ -1,0 +1,114 @@
+export type Category = 'lower' | 'upper' | 'core' | 'stretch' | 'family';
+export type Unit = 'reps' | 'sec';
+
+export interface Exercise {
+  id: string;
+  name: string;
+  category: Category;
+  unit: Unit;
+  amount: number; // default reps or seconds
+  sets: number;
+  perSide?: boolean;
+  how: string;
+  easy?: string; // gentler variant, shown when the knees/back ask for it
+}
+
+export const CATEGORY_LABEL: Record<Category, string> = {
+  lower: '下半身',
+  upper: '上半身',
+  core: '体幹',
+  stretch: 'ストレッチ',
+  family: '子どもと一緒に',
+};
+
+export const EXERCISES: Exercise[] = [
+  { id: 'squat', name: 'スクワット', category: 'lower', unit: 'reps', amount: 10, sets: 2,
+    how: '足を肩幅に開き、椅子に座るつもりでお尻を引く。膝がつま先より前に出すぎないように。',
+    easy: '椅子に軽く座って立つ動きにする。' },
+  { id: 'back-lunge', name: 'バックランジ', category: 'lower', unit: 'reps', amount: 8, sets: 1, perSide: true,
+    how: '片足を後ろに引き、前の膝を90度くらいまで曲げて戻る。',
+    easy: '壁に手をつき、浅めに行う。' },
+  { id: 'hip-lift', name: 'ヒップリフト', category: 'lower', unit: 'reps', amount: 12, sets: 2,
+    how: '仰向けで膝を立て、お尻を持ち上げて肩から膝を一直線にする。',
+    easy: '回数を半分にする。' },
+  { id: 'calf-raise', name: 'かかと上げ', category: 'lower', unit: 'reps', amount: 20, sets: 1,
+    how: 'ゆっくりかかとを上げ、ゆっくり下ろす。',
+    easy: '壁に手をつく。' },
+  { id: 'pushup', name: '腕立て伏せ', category: 'upper', unit: 'reps', amount: 8, sets: 2,
+    how: '手を肩幅より少し広く床につき、体を一直線にして胸を床に近づける。',
+    easy: '膝をついて行う。' },
+  { id: 'wall-pushup', name: '壁腕立て', category: 'upper', unit: 'reps', amount: 15, sets: 1,
+    how: '壁から腕の長さ離れて立ち、胸を壁に近づけて押し戻す。' },
+  { id: 'chair-dip', name: 'リバースプッシュアップ（椅子）', category: 'upper', unit: 'reps', amount: 8, sets: 1,
+    how: '椅子のふちに手をつき、お尻を落として腕で戻る。椅子が動かない場所で。',
+    easy: '膝を曲げて足を手前に置く。' },
+  { id: 'superman', name: 'スーパーマン', category: 'upper', unit: 'reps', amount: 10, sets: 1,
+    how: 'うつ伏せで腕と脚を同時に少し持ち上げ、1秒止めて下ろす。',
+    easy: '片手片足ずつ行う。' },
+  { id: 'plank', name: 'プランク', category: 'core', unit: 'sec', amount: 30, sets: 1,
+    how: 'ひじとつま先で体を支え、頭からかかとまで一直線に保つ。',
+    easy: '膝をついて行う。' },
+  { id: 'side-plank', name: 'サイドプランク', category: 'core', unit: 'sec', amount: 20, sets: 1, perSide: true,
+    how: '横向きでひじをつき、腰を持ち上げてキープする。',
+    easy: '膝をついて行う。' },
+  { id: 'dead-bug', name: 'デッドバグ', category: 'core', unit: 'reps', amount: 10, sets: 1,
+    how: '仰向けで腕と脚を上げ、対角の手足をゆっくり伸ばして戻す。',
+    easy: '脚だけ動かす。' },
+  { id: 'bird-dog', name: 'バードドッグ', category: 'core', unit: 'reps', amount: 8, sets: 1, perSide: true,
+    how: '四つ這いから対角の手と脚を伸ばし、1秒止めて戻す。',
+    easy: '手だけ伸ばす。' },
+  { id: 'hamstring', name: '太もも裏のストレッチ', category: 'stretch', unit: 'sec', amount: 30, sets: 1, perSide: true,
+    how: '片脚を前に伸ばして座り、背中を丸めずに上体を前へ倒す。呼吸は止めない。' },
+  { id: 'hip-flexor', name: '股関節のストレッチ', category: 'stretch', unit: 'sec', amount: 30, sets: 1, perSide: true,
+    how: '後ろ脚の膝を床につけ、骨盤を前に押し出して脚のつけ根を伸ばす。' },
+  { id: 'chest-shoulder', name: '胸と肩のストレッチ', category: 'stretch', unit: 'sec', amount: 30, sets: 1,
+    how: 'ドア枠にひじをかけ、体をゆっくり前に出して胸を開く。' },
+  { id: 'cat-cow', name: '背中・腰のストレッチ（キャット＆カウ）', category: 'stretch', unit: 'reps', amount: 10, sets: 1,
+    how: '四つ這いで息を吐きながら背中を丸め、吸いながら反らす。' },
+  // 子どもと一緒に（任意。参加は子どもの気分次第で、記録は本人のみ）
+  { id: 'carry-squat', name: '抱っこスクワット', category: 'family', unit: 'reps', amount: 8, sets: 1,
+    how: '2歳のお子さんを抱いてスクワット。体勢が不安定なら無理せず中止し、ぬいぐるみなどで代用してもOK。',
+    easy: '抱っこせず通常のスクワットにする。' },
+  { id: 'kid-plank', name: '子どもを背中に乗せてプランク', category: 'family', unit: 'sec', amount: 15, sets: 1,
+    how: '10歳のお子さんが軽く背中に手を置く程度で。腰が落ちたらすぐ中止する。',
+    easy: '子どもなしで膝つきプランクにする。' },
+];
+
+export const byId = (id: string): Exercise | undefined => EXERCISES.find((e) => e.id === id);
+
+const MAIN_CATS: Category[] = ['lower', 'upper', 'core'];
+
+function ofCat(c: Category): Exercise[] {
+  return EXERCISES.filter((e) => e.category === c);
+}
+
+/**
+ * Goal menu for a given "rotation number" (days since start): 2 from the day's focus category,
+ * 1 from the next category, plus 2 stretches. Deterministic so the menu is stable within a day.
+ */
+export function goalMenu(rotation: number): Exercise[] {
+  const n = Math.abs(rotation);
+  const focus = ofCat(MAIN_CATS[n % 3]);
+  const other = ofCat(MAIN_CATS[(n + 1) % 3]);
+  const stretch = ofCat('stretch');
+  const round = Math.floor(n / 3);
+  const pick = <T,>(list: T[], i: number) => list[((i % list.length) + list.length) % list.length];
+  return [
+    pick(focus, round * 2),
+    pick(focus, round * 2 + 1),
+    pick(other, round),
+    pick(stretch, n * 2),
+    pick(stretch, n * 2 + 1),
+  ];
+}
+
+export function minimumMenu(rotation: number): Exercise[] {
+  return [goalMenu(rotation)[0]];
+}
+
+export function setLabel(e: Exercise, amount: number): string {
+  const per = e.unit === 'reps' ? `${amount}回` : `${amount}秒`;
+  const side = e.perSide ? '（左右それぞれ）' : '';
+  const sets = e.sets > 1 ? ` × ${e.sets}セット` : '';
+  return `${per}${side}${sets}`;
+}
