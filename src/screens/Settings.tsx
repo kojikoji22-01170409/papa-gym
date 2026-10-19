@@ -24,6 +24,28 @@ function resizePhoto(file: File, max = 256): Promise<string> {
   });
 }
 
+/** Year/month selects instead of <input type="month">, which iOS Safari renders and clears unreliably. */
+function MonthSelect({ value, onChange, from, to }: { value: string; onChange: (v: string) => void; from: number; to: number }) {
+  const [y0, m0] = value ? value.split('-') : ['', ''];
+  const [y, setY] = useState(y0);
+  const [m, setM] = useState(m0);
+  const years: number[] = [];
+  for (let i = to; i >= from; i--) years.push(i);
+  const emit = (ny: string, nm: string) => onChange(ny && nm ? `${ny}-${nm}` : '');
+  return (
+    <div className="row">
+      <select value={y} onChange={(e) => { setY(e.target.value); emit(e.target.value, m); }}>
+        <option value="">年</option>
+        {years.map((v) => <option key={v} value={String(v)}>{v}年</option>)}
+      </select>
+      <select value={m} onChange={(e) => { setM(e.target.value); emit(y, e.target.value); }}>
+        <option value="">月</option>
+        {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map((v) => <option key={v} value={v}>{Number(v)}月</option>)}
+      </select>
+    </div>
+  );
+}
+
 function AddLine({ placeholder, onAdd }: { placeholder: string; onAdd: (text: string) => void }) {
   const [t, setT] = useState('');
   return (
@@ -40,11 +62,11 @@ export function Settings({ state, update, replace }: ScreenProps & { replace: (s
   const [photo, setPhoto] = useState<string>();
   const [msg, setMsg] = useState('');
   const file = useRef<HTMLInputElement>(null);
+  const thisYear = new Date().getFullYear();
 
   const addChild = () => {
     update((s) => ({ ...s, children: [...s.children, { id: uid(), name: name.trim(), birth, photo }] }));
     setName(''); setBirth(''); setPhoto(undefined);
-    if (file.current) file.current.value = '';
   };
 
   const download = () => {
@@ -75,7 +97,7 @@ export function Settings({ state, update, replace }: ScreenProps & { replace: (s
       <h2>自分</h2>
       <div className="card">
         <label>生年月日（年月）</label>
-        <input type="month" value={state.profile.fatherBirth ?? ''} onChange={(e) => update((s) => ({ ...s, profile: { ...s.profile, fatherBirth: e.target.value || undefined } }))} />
+        <MonthSelect value={state.profile.fatherBirth ?? ''} from={thisYear - 80} to={thisYear - 18} onChange={(v) => update((s) => ({ ...s, profile: { ...s.profile, fatherBirth: v || undefined } }))} />
         <div className="muted">お子さんが20歳のときの年齢の表示に使います。</div>
       </div>
 
@@ -101,13 +123,16 @@ export function Settings({ state, update, replace }: ScreenProps & { replace: (s
             </li>
           ))}
         </ul>
-        <label>呼び名</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} />
-        <label>生年月</label>
-        <input type="month" value={birth} onChange={(e) => setBirth(e.target.value)} />
-        <label>写真（任意・端末内にだけ保存されます）</label>
-        <input ref={file} type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) setPhoto(await resizePhoto(f)); }} />
-        <button className="primary big" disabled={!name.trim() || !birth} onClick={addChild}>お子さんを追加</button>
+        <div key={state.children.length}>
+          <h3>{state.children.length ? `${state.children.length + 1}人目を追加` : 'お子さんを追加'}</h3>
+          <label>呼び名</label>
+          <input value={name} onChange={(e) => setName(e.target.value)} />
+          <label>生年月</label>
+          <MonthSelect value={birth} from={thisYear - 25} to={thisYear} onChange={setBirth} />
+          <label>写真（任意・端末内にだけ保存されます）</label>
+          <input ref={file} type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) { try { setPhoto(await resizePhoto(f)); } catch { setPhoto(undefined); } } }} />
+          <button className="primary big" disabled={!name.trim() || !birth} onClick={addChild}>お子さんを追加</button>
+        </div>
       </div>
 
       <h2>家族からもらった言葉</h2>

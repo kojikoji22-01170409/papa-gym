@@ -88,3 +88,10 @@ ul.tl li { align-items: flex-start; }
 ul.tl .date { width: 56px; flex: none; color: var(--sub); font-size: 13px; }
 .stats3 b small { font-size: 13px; font-weight: 600; margin-left: 2px; }
 .pill + .gif { margin-top: 8px; }
+
+/* Settings layout hardening (iOS Safari) */
+.row > input, .row > select { flex: 1; min-width: 0; width: auto; }
+.row > button { flex: none; }
+input[type=file] { width: 100%; max-width: 100%; font-size: 14px; min-height: 0; padding: 8px 0; border: 0; background: none; }
+ul.plain .grow { min-width: 0; overflow-wrap: anywhere; }
+.card { overflow: hidden; }
