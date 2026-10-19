@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ScreenProps } from '../App';
-import { byId, setLabel } from '../lib/exercises';
+import { byId, gifUrl, setLabel } from '../lib/exercises';
 import { suggestAmount } from '../lib/rewards';
 import { completeSession } from '../lib/actions';
 import type { ExerciseLog, Feel } from '../lib/types';
+import { Rest } from './Rest';
+
+export const DEFAULT_REST_SEC = 30;
 
 const FEEL: { feel: Feel; label: string }[] = [
   { feel: 'easy', label: 'できた（楽だった）' },
@@ -35,8 +38,10 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
   const [idx, setIdx] = useState(0);
   const [done, setDone] = useState<ExerciseLog[]>([]);
   const [easy, setEasy] = useState(false);
+  const [resting, setResting] = useState(false);
   const ex = byId(menu[idx]);
   if (!ex) return null;
+  const restSec = state.profile.restSec ?? DEFAULT_REST_SEC;
 
   const amount = state.profile.amounts[ex.id] ?? ex.amount;
   const suggestion = suggestAmount(state.logs, ex, amount);
@@ -55,11 +60,31 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
     else setIdx(idx + 1);
   };
 
+  const afterExercise = (logs: ExerciseLog[]) => {
+    // Rest (with the health quiz) only on the goal line; the 1-exercise minimum line stays instant.
+    if (line === 'goal' && restSec > 0 && idx + 1 < menu.length) setResting(true);
+    else next(logs);
+  };
+
   const complete = (feel: Feel) => {
     const logs = [...done, { date: today, exerciseId: ex.id, amount, easyVariant: easy, feel }];
     setDone(logs);
-    next(logs);
+    afterExercise(logs);
   };
+
+  if (resting) {
+    const upcoming = byId(menu[idx + 1])!;
+    return (
+      <>
+        <div className="row spread">
+          <button className="link" onClick={() => finish(done)}>ここで終わる</button>
+          <span className="muted">{idx + 1} / {menu.length} 完了</span>
+        </div>
+        <Rest state={state} update={update} today={today} seconds={restSec} next={upcoming}
+          onNext={() => { setResting(false); next(done); }} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -70,6 +95,7 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
         <span className="muted">{idx + 1} / {menu.length}</span>
       </div>
       <div className="card">
+        <img className="gif" src={gifUrl(ex.id)} alt={`${ex.name}の動き`} />
         <h1>{ex.name}</h1>
         <div className="amount">{setLabel(ex, amount)}</div>
         <p>{ex.how}</p>

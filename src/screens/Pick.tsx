@@ -1,5 +1,5 @@
 import type { ScreenProps } from '../App';
-import { CATEGORY_LABEL, EXERCISES, goalMenu, setLabel, type Category } from '../lib/exercises';
+import { CATEGORY_LABEL, EXERCISES, gifUrl, goalMenu, setLabel, type Category } from '../lib/exercises';
 import { diffDays } from '../lib/dates';
 
 const ORDER: Category[] = ['lower', 'upper', 'core', 'stretch', 'family'];
@@ -13,6 +13,7 @@ export function Pick({ state, today, go }: ScreenProps) {
       <h1>1種目だけ選ぶ</h1>
       <div className="card">
         <span className="pill">今日のおすすめ</span>
+        <img className="gif" src={gifUrl(rec.id)} alt={`${rec.name}の動き`} />
         <div className="amount">{rec.name}</div>
         <div className="muted">{setLabel(rec, state.profile.amounts[rec.id] ?? rec.amount)}</div>
         <button className="primary big" onClick={() => start(rec.id)}>これをやる</button>
@@ -23,6 +24,7 @@ export function Pick({ state, today, go }: ScreenProps) {
           <ul className="plain card">
             {EXERCISES.filter((e) => e.category === cat).map((e) => (
               <li key={e.id}>
+                <img className="thumb" src={gifUrl(e.id)} alt="" loading="lazy" />
                 <span className="grow">{e.name}<div className="muted">{setLabel(e, state.profile.amounts[e.id] ?? e.amount)}</div></span>
                 <button className="small" onClick={() => start(e.id)}>やる</button>
               </li>

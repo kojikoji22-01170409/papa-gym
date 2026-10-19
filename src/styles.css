@@ -75,3 +75,16 @@ label { display: block; font-size: 14px; color: var(--sub); margin: 10px 0 4px; 
 ul.plain { list-style: none; padding: 0; margin: 0; }
 ul.plain li { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 ul.plain li:last-child { border-bottom: 0; }
+
+.gif { display: block; width: 100%; max-width: 360px; aspect-ratio: 6 / 5; object-fit: contain; margin: 0 auto 8px; border-radius: 12px; background: var(--bg); }
+.gif.small { max-width: 220px; margin: 12px auto 0; }
+.thumb { width: 72px; height: 60px; object-fit: contain; border-radius: 8px; background: var(--bg); flex: none; }
+.heat { overflow-x: auto; padding-bottom: 6px; }
+.stats3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+.stats3 b { font-size: 22px; display: block; }
+.badge { display: inline-block; padding: 4px 10px; border-radius: 99px; margin: 3px 3px 3px 0; font-size: 13px; background: #eee9da; color: var(--sub); }
+.badge.on { background: var(--accent); color: #fff; font-weight: 700; }
+ul.tl li { align-items: flex-start; }
+ul.tl .date { width: 56px; flex: none; color: var(--sub); font-size: 13px; }
+.stats3 b small { font-size: 13px; font-weight: 600; margin-left: 2px; }
+.pill + .gif { margin-top: 8px; }

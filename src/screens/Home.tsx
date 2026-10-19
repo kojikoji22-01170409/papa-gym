@@ -5,6 +5,7 @@ import { canRescueYesterday, levelOf, streakOf } from '../lib/rewards';
 import { diffDays, monthKey } from '../lib/dates';
 import { FAMILY_TEMPLATES } from '../lib/cards';
 import { goalMenu } from '../lib/exercises';
+import { totals, weeklyReps } from '../lib/stats';
 
 function cheerLine(state: ScreenProps['state'], today: string): string {
   const n = Number(today.replace(/-/g, ''));
@@ -24,6 +25,9 @@ export function Home({ state, update, today, go }: ScreenProps) {
   const rotation = diffDays(today, state.profile.startDate);
   const checkDue = !state.checks.some((c) => c.date.slice(0, 7) === monthKey(new Date(`${today}T12:00:00`)));
   const rescue = !dismissed && canRescueYesterday(state, today);
+  const weeks = weeklyReps(state, today, 2);
+  const [lastWeek, thisWeek] = weeks;
+  const total = totals(state);
 
   return (
     <>
@@ -58,6 +62,16 @@ export function Home({ state, update, today, go }: ScreenProps) {
         <div className="bar"><i style={{ width: `${pct}%` }} /></div>
         {lv.next && <div className="muted">次のレベルまで あと {lv.next - state.profile.points}pt</div>}
       </div>
+
+      {state.logs.length > 0 && (
+        <button className="card" style={{ width: '100%', textAlign: 'left' }} onClick={() => go({ name: 'records' })}>
+          <div className="row spread">
+            <span>今週 <b>{thisWeek.reps}回</b><span className="muted">（先週より {thisWeek.reps - lastWeek.reps >= 0 ? '+' : ''}{thisWeek.reps - lastWeek.reps}回）</span></span>
+            <span className="muted">あゆみを見る ›</span>
+          </div>
+          <div className="muted">これまでの合計 {total.reps.toLocaleString('ja-JP')}回・{total.days}日</div>
+        </button>
+      )}
 
       <button className="primary big" onClick={() => go({ name: 'pick' })}>
         最低ライン：1種目だけやる（約1分）

@@ -130,3 +130,98 @@ describe('menu and auto-adjust', () => {
     expect(suggestAmount([log('easy'), log('easy'), log('easy')], sq, 12)).toBeUndefined();
   });
 });
+
+// ---- v2: stats, quiz, demo GIFs
+import { existsSync, readFileSync } from 'node:fs';
+import { EXERCISES, holdSecOf, repsOf } from './exercises';
+import { QUIZZES, pickQuiz, recordQuiz } from './quiz';
+import { dayBadges, growth, heatmap, perExercise, repBadges, timeline, totals, weekStart, weeklyReps } from './stats';
+
+const log = (date: string, exerciseId: string, amount: number, feel: ExerciseLog['feel'] = 'normal', easyVariant = false): ExerciseLog =>
+  ({ date, exerciseId, amount, easyVariant, feel });
+
+describe('stats', () => {
+  it('counts reps with sets and both sides, and holds separately', () => {
+    expect(repsOf(byId('squat')!, 10)).toBe(20); // 10 x 2 sets
+    expect(repsOf(byId('back-lunge')!, 8)).toBe(16); // 8 per side
+    expect(repsOf(byId('plank')!, 30)).toBe(0);
+    expect(holdSecOf(byId('side-plank')!, 20)).toBe(40);
+  });
+  it('rolls weeks over on Monday', () => {
+    expect(weekStart('2026-10-19')).toBe('2026-10-19'); // Monday
+    expect(weekStart('2026-10-25')).toBe('2026-10-19'); // Sunday
+    expect(weekStart('2026-10-26')).toBe('2026-10-26');
+  });
+  it('sums the last weeks and compares this week with last', () => {
+    const s: State = { ...newState(new Date(2026, 9, 1)), logs: [
+      log('2026-10-13', 'squat', 10), log('2026-10-19', 'squat', 10), log('2026-10-20', 'pushup', 8),
+    ] };
+    const w = weeklyReps(s, '2026-10-21', 3);
+    expect(w.map((x) => x.reps)).toEqual([0, 20, 36]);
+    expect(totals(s).reps).toBe(56);
+  });
+  it('builds a 53-week heatmap whose columns start on Monday', () => {
+    const s: State = { ...newState(new Date(2026, 9, 1)), days: { '2026-10-19': day('2026-10-19') }, logs: [log('2026-10-19', 'squat', 10)] };
+    const h = heatmap(s, '2026-10-21');
+    expect(h).toHaveLength(53);
+    expect(h.at(-1)![0].date).toBe('2026-10-19');
+    expect(h.at(-1)![0].level).toBe(2); // 20 reps -> level 2
+    expect(h.at(-1)![3].future).toBe(true);
+  });
+  it('ranks exercises and reports growth and easy-version graduation', () => {
+    const logs = [
+      log('2026-10-01', 'pushup', 8, 'hard', true), log('2026-10-02', 'pushup', 8, 'normal', true),
+      log('2026-10-03', 'pushup', 8), log('2026-10-04', 'pushup', 8), log('2026-10-05', 'pushup', 8),
+      log('2026-10-01', 'squat', 10),
+    ];
+    const s: State = { ...newState(new Date(2026, 9, 1)), logs, profile: { ...newState().profile, amounts: { squat: 12 } } };
+    expect(perExercise(s)[0].id).toBe('pushup');
+    const g = growth(s);
+    expect(g.find((x) => x.id === 'squat')).toMatchObject({ first: 10, current: 12 });
+    expect(g.find((x) => x.id === 'pushup')?.graduatedEasyOn).toBe('2026-10-03');
+  });
+  it('earns badges by total', () => {
+    expect(repBadges(120).filter((b) => b.earned)).toHaveLength(1);
+    expect(dayBadges(30).filter((b) => b.earned)).toHaveLength(2);
+  });
+  it('builds a timeline with first day, streak, level and badge milestones', () => {
+    const days: State['days'] = {};
+    for (let i = 0; i < 7; i++) days[addDays('2026-10-01', i)] = { date: addDays('2026-10-01', i), kind: 'goal', points: 30 };
+    const logs = Array.from({ length: 7 }, (_, i) => log(addDays('2026-10-01', i), 'squat', 10)); // 20 reps/day
+    const s: State = { ...newState(new Date(2026, 9, 1)), days, logs, checks: [{ date: '2026-10-05', chairStands: 1, pushups: 1, plankSec: 1, singleLegSec: 1, forwardBendCm: 0 }] };
+    const titles = timeline(s).map((e) => e.title);
+    expect(titles[0]).toContain('はじめの一歩');
+    expect(titles).toContain('7日連続を達成');
+    expect(titles).toContain('累計100回を達成'); // 5 days x 20 reps
+    expect(titles.some((t) => t.startsWith('Lv.2'))).toBe(true);
+    expect(titles).toContain('体力チェック');
+  });
+});
+
+describe('quiz', () => {
+  it('has well-formed questions with unique ids', () => {
+    expect(new Set(QUIZZES.map((q) => q.id)).size).toBe(QUIZZES.length);
+    for (const q of QUIZZES) {
+      expect(q.choices).toHaveLength(3);
+      expect(new Set(q.choices).size).toBe(3);
+      expect([0, 1, 2]).toContain(q.answer);
+      expect(q.why.length).toBeGreaterThan(10);
+    }
+  });
+  it('shows the least-seen question first and records answers', () => {
+    const seen = Object.fromEntries(QUIZZES.slice(1).map((q) => [q.id, 1]));
+    expect(pickQuiz(seen, 7).id).toBe(QUIZZES[0].id);
+    const s = recordQuiz(recordQuiz(newState(new Date(2026, 9, 1)), 'who-strength', true), 'breathing', false);
+    expect(s.quiz).toEqual({ answered: 2, correct: 1, seen: { 'who-strength': 1, breathing: 1 } });
+  });
+});
+
+describe('demo GIFs', () => {
+  it('exist for every exercise and are precached by the service worker', () => {
+    const sw = readFileSync('public/sw.js', 'utf8');
+    for (const e of EXERCISES) {
+      expect(existsSync(`public/gifs/${e.id}.gif`), e.id).toBe(true);
+      expect(sw).toContain(`'${e.id}'`);
+    }
+  });
+});

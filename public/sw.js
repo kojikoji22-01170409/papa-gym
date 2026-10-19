@@ -1,10 +1,18 @@
 // Offline support: network-first for pages (so updates arrive), cache fallback when offline,
 // stale-while-revalidate for hashed assets.
-const CACHE = 'papa-gym-v1';
+const CACHE = 'papa-gym-v2';
 const SCOPE = self.registration.scope;
+// Keep in sync with the exercise ids in src/lib/exercises.ts (checked by a test).
+const GIFS = ['squat', 'back-lunge', 'hip-lift', 'calf-raise', 'pushup', 'wall-pushup', 'chair-dip', 'superman', 'plank', 'side-plank', 'dead-bug', 'bird-dog', 'hamstring', 'hip-flexor', 'chest-shoulder', 'cat-cow', 'carry-squat', 'kid-plank'];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll([SCOPE, `${SCOPE}manifest.webmanifest`, `${SCOPE}icon.svg`])));
+  event.waitUntil(
+    caches.open(CACHE).then(async (c) => {
+      await c.addAll([SCOPE, `${SCOPE}manifest.webmanifest`, `${SCOPE}icon.svg`]);
+      // The demo GIFs are optional: one failing download must not block the install.
+      await Promise.allSettled(GIFS.map((id) => c.add(`${SCOPE}gifs/${id}.gif`)));
+    }),
+  );
   self.skipWaiting();
 });
 

@@ -74,7 +74,7 @@ export function App() {
       {view.name === 'done' && <Done {...props} result={view.result} />}
       {tab && (
         <nav className="tabs">
-          {([['home', 'ホーム'], ['records', '記録'], ['settings', '設定']] as const).map(([k, label]) => (
+          {([['home', 'ホーム'], ['records', 'あゆみ'], ['settings', '設定']] as const).map(([k, label]) => (
             <button key={k} className={tab === k ? 'on' : ''} onClick={() => setView({ name: k } as View)}>
               {label}
             </button>

@@ -79,6 +79,17 @@ export function Settings({ state, update, replace }: ScreenProps & { replace: (s
         <div className="muted">お子さんが20歳のときの年齢の表示に使います。</div>
       </div>
 
+      <h2>トレーニング</h2>
+      <div className="card">
+        <label>目標ラインの種目と種目の間の休憩（健康クイズが出ます）</label>
+        <select value={state.profile.restSec ?? 30} onChange={(e) => update((s) => ({ ...s, profile: { ...s.profile, restSec: Number(e.target.value) } }))}>
+          <option value={0}>休憩なし</option>
+          <option value={30}>30秒</option>
+          <option value={60}>60秒</option>
+        </select>
+        <div className="muted">最低ライン（1種目）の日には休憩は入りません。</div>
+      </div>
+
       <h2>お子さん</h2>
       <div className="card">
         <ul className="plain">

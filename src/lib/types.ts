@@ -50,6 +50,7 @@ export interface Profile {
   tickets: number;
   ticketMonth: string; // month the monthly tickets were last granted
   amounts: Record<string, number>; // user-adopted amount per exercise
+  restSec?: number; // rest between goal-line exercises (0 = none, default 30)
 }
 
 export interface CardStock {
@@ -69,4 +70,11 @@ export interface State {
   familyRewards: FamilyReward[];
   selfRewards: SelfReward[];
   missionDone: Record<string, boolean>; // date -> done
+  quiz?: QuizStats;
+}
+
+export interface QuizStats {
+  answered: number;
+  correct: number;
+  seen: Record<string, number>; // question id -> times shown
 }
