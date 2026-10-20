@@ -4,8 +4,8 @@ import { useTicket, completeMission, missionOf } from '../lib/actions';
 import { canRescueYesterday, levelOf, streakOf } from '../lib/rewards';
 import { diffDays, monthKey } from '../lib/dates';
 import { FAMILY_TEMPLATES } from '../lib/cards';
-import { goalMenu } from '../lib/exercises';
-import { planFor } from '../lib/plan';
+import { goalMenu, shortLabel } from '../lib/exercises';
+import { amountFor, planFor } from '../lib/plan';
 import { totals, weeklyReps } from '../lib/stats';
 
 function cheerLine(state: ScreenProps['state'], today: string): string {
@@ -34,9 +34,12 @@ export function Home({ state, update, today, go }: ScreenProps) {
 
   return (
     <>
-      <div className="row spread">
+      <div className="brand">
         <h1>パパジム</h1>
-        <span className="pill">🎟 お休みチケット {state.profile.tickets}</span>
+        <span className="ticket">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z" /><path d="M13 6v12" strokeDasharray="2 3" /></svg>
+          お休みチケット {state.profile.tickets}
+        </span>
       </div>
 
       {rescue && (
@@ -51,19 +54,24 @@ export function Home({ state, update, today, go }: ScreenProps) {
       )}
 
       <div className="card hero">
-        <div className="muted">連続記録</div>
-        <div className="streak">{streak}<small>日</small></div>
-        <div>{rec ? (rec.kind === 'goal' ? '今日は目標ライン達成！' : '今日は最低ライン達成！') : '今日はまだこれから'}</div>
-        <div className="muted" style={{ marginTop: 6 }}>{cheerLine(state, today)}</div>
-      </div>
-
-      <div className="card">
+        <div className="row spread" style={{ alignItems: 'flex-end' }}>
+          <div>
+            <div className="muted">連続記録</div>
+            <div className="streak">{streak}<small>日</small></div>
+          </div>
+          <span className="flame">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e4600b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-6 1-9z" /></svg>
+          </span>
+        </div>
+        <div style={{ marginTop: 8 }}>{rec ? (rec.kind === 'goal' ? '今日は目標ライン達成！' : '今日は最低ライン達成！') : '今日はまだこれから'}</div>
+        <div className="muted">{cheerLine(state, today)}</div>
+        <div className="divider" />
         <div className="row spread">
           <b>Lv.{lv.level} {lv.title}</b>
           <span className="muted">{state.profile.points}pt</span>
         </div>
         <div className="bar"><i style={{ width: `${pct}%` }} /></div>
-        {lv.next && <div className="muted">次のレベルまで あと {lv.next - state.profile.points}pt</div>}
+        {lv.next && <div className="muted" style={{ marginTop: 6 }}>次のレベルまで あと {lv.next - state.profile.points}pt</div>}
       </div>
 
       {state.logs.length > 0 && (
@@ -77,23 +85,26 @@ export function Home({ state, update, today, go }: ScreenProps) {
       )}
 
       <div className="card">
-        <div className="row spread">
+        <div className="row spread" style={{ marginBottom: 6 }}>
           <b>今日のメニュー</b>
           <span className="pill">{plan.label}</span>
         </div>
         <ol className="menu">
           {menu.map((e) => (
-            <li key={e.id}>{e.name}{e.category === 'stretch' && <span className="tag">{e.warmup ? '準備' : 'ストレッチ'}</span>}</li>
+            <li key={e.id} className={e.category === 'stretch' ? 'stretch' : ''}>
+              <span className="name">{e.name}</span>
+              <span className="qty">{shortLabel(e, amountFor(e, plan))}</span>
+            </li>
           ))}
         </ol>
         {plan.recovery && <div className="muted" style={{ marginTop: 6 }}>今週は回復週。量を少し減らして、体を休めながら続けます。{plan.stretchDay ? '今日はストレッチ多めの日です。' : ''}</div>}
       </div>
 
-      <button className="primary big" onClick={() => go({ name: 'pick' })}>
-        最低ライン：1種目だけやる（約1分）
-      </button>
       <button className="accent big" onClick={() => go({ name: 'train', menu: menu.map((e) => e.id), line: 'goal' })}>
         目標ライン（約10分）
+      </button>
+      <button className="big" style={{ minHeight: 54, fontSize: 15 }} onClick={() => go({ name: 'pick' })}>
+        最低ライン：1種目だけ（約1分）
       </button>
 
       {checkDue && (

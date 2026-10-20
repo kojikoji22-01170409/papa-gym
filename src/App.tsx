@@ -22,6 +22,12 @@ export type View =
   | { name: 'train'; menu: string[]; line: 'min' | 'goal' }
   | { name: 'done'; result: SessionResult };
 
+const TABS = [
+  ['home', 'ホーム', <><path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" /></>],
+  ['records', 'あゆみ', <path d="M4 20V10M10 20V4M16 20v-8M22 20H2" />],
+  ['settings', '設定', <><circle cx="12" cy="12" r="3" /><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.7a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2L10 21h4l.6-2.7a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z" /></>],
+] as const;
+
 export type Update = (fn: (s: State) => State) => void;
 
 export function App() {
@@ -75,8 +81,9 @@ export function App() {
       {view.name === 'done' && <Done {...props} result={view.result} />}
       {tab && (
         <nav className="tabs">
-          {([['home', 'ホーム'], ['records', 'あゆみ'], ['settings', '設定']] as const).map(([k, label]) => (
+          {TABS.map(([k, label, icon]) => (
             <button key={k} className={tab === k ? 'on' : ''} onClick={() => setView({ name: k } as View)}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{icon}</svg>
               {label}
             </button>
           ))}

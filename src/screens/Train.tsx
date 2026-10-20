@@ -9,9 +9,9 @@ import { Rest } from './Rest';
 export const DEFAULT_REST_SEC = 30;
 
 const FEEL: { feel: Feel; label: string }[] = [
-  { feel: 'easy', label: 'できた（楽だった）' },
   { feel: 'normal', label: 'できた（ちょうどいい）' },
-  { feel: 'hard', label: 'できた（きつかった）' },
+  { feel: 'easy', label: '楽だった' },
+  { feel: 'hard', label: 'きつかった' },
 ];
 
 function Countdown({ seconds }: { seconds: number }) {
@@ -94,7 +94,10 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
         <button className="link" onClick={() => (done.length ? finish(done) : go({ name: 'home' }))}>
           {done.length ? 'ここで終わる' : '← やめる'}
         </button>
-        <span className="muted">{idx + 1} / {menu.length}</span>
+        <div className="progress">
+          <div className="bar"><i style={{ width: `${((idx + 1) / menu.length) * 100}%` }} /></div>
+          <span className="muted">{idx + 1} / {menu.length}</span>
+        </div>
       </div>
       <div className="card">
         <img className="gif" src={gifUrl(ex.id)} alt={`${ex.name}の動き`} />
@@ -104,7 +107,13 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
         {ex.unit === 'sec' && <Countdown seconds={amount} />}
         <h3>やり方</h3>
         <ol className="steps">{ex.steps.map((t) => <li key={t}>{t}</li>)}</ol>
-        <div className="benefit"><b>効能</b><br />{ex.benefit}</div>
+        <div className="benefit">
+          <b>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2l2.6 6.4L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.6z" /></svg>
+            この種目の効能
+          </b>
+          {ex.benefit}
+        </div>
         {topStage && ex.hard && <div className="card banner"><b>レベルアップ版</b><br />{ex.hard}</div>}
         {ex.easy && (
           <label style={{ display: 'flex', gap: 8, alignItems: 'center', color: 'inherit' }}>
@@ -114,9 +123,9 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
         )}
         <p className="muted">痛みや違和感があるときは無理せず中止してください。</p>
       </div>
-      <div className="feel">
+      <div className="feel done">
         {FEEL.map((f) => (
-          <button key={f.feel} className={f.feel === 'normal' ? 'primary' : ''} onClick={() => complete(f.feel)}>{f.label}</button>
+          <button key={f.feel} className={f.feel === 'normal' ? 'accent' : ''} onClick={() => complete(f.feel)}>{f.label}</button>
         ))}
         {menu.length > 1 && <button className="link" onClick={() => next(done)}>この種目はスキップ</button>}
       </div>

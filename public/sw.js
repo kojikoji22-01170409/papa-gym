@@ -1,6 +1,6 @@
 // Offline support: network-first for pages (so updates arrive), cache fallback when offline,
 // stale-while-revalidate for hashed assets.
-const CACHE = 'papa-gym-v3';
+const CACHE = 'papa-gym-v4';
 const SCOPE = self.registration.scope;
 // Keep in sync with the exercise ids in src/lib/exercises.ts (checked by a test).
 const GIFS = ['squat', 'back-lunge', 'hip-lift', 'calf-raise', 'pushup', 'wall-pushup', 'chair-dip', 'superman', 'plank', 'side-plank', 'dead-bug', 'bird-dog', 'hamstring', 'hip-flexor', 'chest-shoulder', 'cat-cow', 'calf-stretch', 'glute-hug', 'childs-pose', 'scapula-stretch', 'forward-fold', 'thoracic-reach', 'carry-squat', 'kid-plank'];

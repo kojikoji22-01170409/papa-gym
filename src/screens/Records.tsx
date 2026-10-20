@@ -23,7 +23,7 @@ function longestStreak(days: Record<string, DayRecord>): number {
   return best;
 }
 
-const HEAT = ['#ece8da', '#cfe3dc', '#9bc7b9', '#4f9a85', '#1f6f5c'];
+const HEAT = ['#e3eff6', '#bfe0f2', '#7cc3e6', '#2fa4da', '#0f7bb5'];
 const STEP = 13;
 
 function Heatmap({ cells }: { cells: HeatCell[][] }) {
