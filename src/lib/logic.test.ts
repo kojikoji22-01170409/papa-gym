@@ -112,12 +112,28 @@ describe('cards', () => {
 });
 
 describe('menu and auto-adjust', () => {
-  it('builds a stable 5-item menu: 3 strength + 2 stretch', () => {
-    for (let n = 0; n < 12; n++) {
+  it('builds a 7-item menu: warm-up, 3 strength, 3 stretches', () => {
+    for (let n = 0; n < 30; n++) {
       const m = goalMenu(n);
-      expect(m).toHaveLength(5);
-      expect(m.filter((e) => e.category === 'stretch')).toHaveLength(2);
-      expect(new Set(m.map((e) => e.id)).size).toBe(5);
+      expect(m).toHaveLength(7);
+      expect(m[0].warmup).toBe(true);
+      expect(m.filter((e) => e.category === 'stretch' && !e.warmup)).toHaveLength(3);
+      expect(m.filter((e) => ['lower', 'upper', 'core'].includes(e.category))).toHaveLength(3);
+      expect(new Set(m.map((e) => e.id)).size).toBe(7);
+    }
+  });
+  it('stretch days have a warm-up, 1 strength and 5 distinct stretches', () => {
+    for (let n = 0; n < 30; n++) {
+      const m = goalMenu(n, true);
+      expect(m).toHaveLength(7);
+      expect(m.filter((e) => e.category === 'stretch' && !e.warmup)).toHaveLength(5);
+      expect(new Set(m.map((e) => e.id)).size).toBe(7);
+    }
+  });
+  it('every exercise has steps and a benefit', () => {
+    for (const e of EXERCISES) {
+      expect(e.steps.length, e.id).toBeGreaterThanOrEqual(3);
+      expect(e.benefit.length, e.id).toBeGreaterThan(10);
     }
   });
   it('suggests more only after 3 easy sessions at the current amount', () => {
@@ -223,5 +239,60 @@ describe('demo GIFs', () => {
       expect(existsSync(`public/gifs/${e.id}.gif`), e.id).toBe(true);
       expect(sw).toContain(`'${e.id}'`);
     }
+  });
+});
+
+// ---- v3: staged plan
+import { adjustStage, amountFor, planFor, withPlan } from './plan';
+
+describe('staged plan', () => {
+  const base = (stageBase = 2): State => ({ ...newState(new Date(2026, 9, 20, 12)), profile: { ...newState().profile, startDate: '2026-10-20', stageStart: '2026-10-20', stageBase, stageShift: 0, points: 0, tickets: 2, ticketMonth: '2026-10', amounts: {} } });
+  const day = (n: number) => addDays('2026-10-20', n);
+
+  it('starts at stage 3, steps up every 2 weeks and has a recovery week every 4th week', () => {
+    const p = base().profile;
+    expect(planFor(p, day(0)).stage).toBe(2);
+    expect(planFor(p, day(13)).stage).toBe(2);
+    expect(planFor(p, day(14)).stage).toBe(3); // week 3
+    const rec = planFor(p, day(21)); // week 4 = recovery
+    expect(rec.recovery).toBe(true);
+    expect(rec.pct).toBe(0.75);
+    expect(planFor(p, day(28)).recovery).toBe(false);
+    expect(planFor(p, day(28 + 7)).stage).toBe(4);
+    expect(planFor(p, day(400)).stage).toBe(4); // capped
+    expect(planFor(base(0).profile, day(0)).stage).toBe(0);
+  });
+  it('scales strength, keeps stretches long and family moves unscaled', () => {
+    const light = planFor(base().profile, day(0), true);
+    expect(amountFor(byId('squat')!, light)).toBe(7);
+    expect(amountFor(byId('plank')!, light)).toBe(20);
+    const std = planFor(base().profile, day(0));
+    expect(amountFor(byId('squat')!, std)).toBe(10);
+    expect(amountFor(byId('hamstring')!, std)).toBe(30);
+    expect(amountFor(byId('carry-squat')!, light)).toBe(8);
+    expect(amountFor(byId('cat-cow')!, std)).toBe(10);
+  });
+  it('holds the progression after two hard training days in a row', () => {
+    const hard = (date: string): ExerciseLog => ({ date, exerciseId: 'squat', amount: 10, easyVariant: false, feel: 'hard' });
+    let s = base();
+    s = { ...s, logs: [hard(day(1)), hard(day(2))], days: { [day(1)]: { date: day(1), kind: 'goal', points: 30 }, [day(2)]: { date: day(2), kind: 'goal', points: 30 } } };
+    const adjusted = adjustStage(s, day(2), false);
+    expect(adjusted.profile.stageShift).toBe(1);
+    // the same pair is not counted twice
+    expect(adjustStage(adjusted, day(2), true).profile.stageShift).toBe(1);
+    expect(planFor(adjusted.profile, day(14)).stage).toBe(2);
+  });
+  it('steps back one stage after a break of 7+ days', () => {
+    let s = base();
+    s = { ...s, days: { [day(1)]: { date: day(1), kind: 'goal', points: 30 } } };
+    expect(adjustStage(s, day(8), false).profile.stageShift).toBe(2);
+    expect(adjustStage(s, day(7), false).profile.stageShift).toBe(0);
+  });
+  it('migrates old data to start at stage 3 today', () => {
+    const old = newState(new Date(2026, 9, 1, 12));
+    const stripped: State = { ...old, profile: { ...old.profile, stageStart: undefined, stageBase: undefined } };
+    const m = withPlan(stripped, '2026-10-20');
+    expect(planFor(m.profile, '2026-10-20').stage).toBe(2);
+    expect(withPlan(m, '2026-11-30')).toBe(m);
   });
 });

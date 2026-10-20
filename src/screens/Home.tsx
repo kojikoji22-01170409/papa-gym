@@ -5,6 +5,7 @@ import { canRescueYesterday, levelOf, streakOf } from '../lib/rewards';
 import { diffDays, monthKey } from '../lib/dates';
 import { FAMILY_TEMPLATES } from '../lib/cards';
 import { goalMenu } from '../lib/exercises';
+import { planFor } from '../lib/plan';
 import { totals, weeklyReps } from '../lib/stats';
 
 function cheerLine(state: ScreenProps['state'], today: string): string {
@@ -23,6 +24,8 @@ export function Home({ state, update, today, go }: ScreenProps) {
   const lv = levelOf(state.profile.points);
   const pct = lv.next ? ((state.profile.points - lv.from) / (lv.next - lv.from)) * 100 : 100;
   const rotation = diffDays(today, state.profile.startDate);
+  const plan = planFor(state.profile, today);
+  const menu = goalMenu(rotation, plan.stretchDay);
   const checkDue = !state.checks.some((c) => c.date.slice(0, 7) === monthKey(new Date(`${today}T12:00:00`)));
   const rescue = !dismissed && canRescueYesterday(state, today);
   const weeks = weeklyReps(state, today, 2);
@@ -73,11 +76,24 @@ export function Home({ state, update, today, go }: ScreenProps) {
         </button>
       )}
 
+      <div className="card">
+        <div className="row spread">
+          <b>今日のメニュー</b>
+          <span className="pill">{plan.label}</span>
+        </div>
+        <ol className="menu">
+          {menu.map((e) => (
+            <li key={e.id}>{e.name}{e.category === 'stretch' && <span className="tag">{e.warmup ? '準備' : 'ストレッチ'}</span>}</li>
+          ))}
+        </ol>
+        {plan.recovery && <div className="muted" style={{ marginTop: 6 }}>今週は回復週。量を少し減らして、体を休めながら続けます。{plan.stretchDay ? '今日はストレッチ多めの日です。' : ''}</div>}
+      </div>
+
       <button className="primary big" onClick={() => go({ name: 'pick' })}>
         最低ライン：1種目だけやる（約1分）
       </button>
-      <button className="accent big" onClick={() => go({ name: 'train', menu: goalMenu(rotation).map((e) => e.id), line: 'goal' })}>
-        目標ライン：今日のメニュー（約5〜10分）
+      <button className="accent big" onClick={() => go({ name: 'train', menu: menu.map((e) => e.id), line: 'goal' })}>
+        目標ライン（約10分）
       </button>
 
       {checkDue && (

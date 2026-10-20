@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { ScreenProps } from '../App';
 import { exportJson, newState, parseBackup } from '../lib/store';
 import type { State } from '../lib/types';
+import { STAGES, planFor, withPlan } from '../lib/plan';
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -56,13 +57,14 @@ function AddLine({ placeholder, onAdd }: { placeholder: string; onAdd: (text: st
   );
 }
 
-export function Settings({ state, update, replace }: ScreenProps & { replace: (s: State) => void }) {
+export function Settings({ state, update, today, replace }: ScreenProps & { replace: (s: State) => void }) {
   const [name, setName] = useState('');
   const [birth, setBirth] = useState('');
   const [photo, setPhoto] = useState<string>();
   const [msg, setMsg] = useState('');
   const file = useRef<HTMLInputElement>(null);
   const thisYear = new Date().getFullYear();
+  const plan = planFor(state.profile, today);
 
   const addChild = () => {
     update((s) => ({ ...s, children: [...s.children, { id: uid(), name: name.trim(), birth, photo }] }));
@@ -82,7 +84,7 @@ export function Settings({ state, update, replace }: ScreenProps & { replace: (s
     try {
       const restored = parseBackup(await f.text());
       if (confirm('今のデータをバックアップの内容で置き換えます。よろしいですか？')) {
-        replace(restored);
+        replace(withPlan(restored, today));
         setMsg('復元しました');
       }
     } catch (e) {
@@ -102,6 +104,13 @@ export function Settings({ state, update, replace }: ScreenProps & { replace: (s
       </div>
 
       <h2>トレーニング</h2>
+      <div className="card">
+        <label>メニューの段階（今：{plan.label}）</label>
+        <select value={plan.stage} onChange={(e) => update((s) => ({ ...s, profile: { ...s.profile, stageStart: today, stageBase: Number(e.target.value), stageShift: 0, stageAdjusted: undefined } }))}>
+          {STAGES.map((st, i) => <option key={st.name} value={i}>ステージ{i + 1}「{st.name}」量{Math.round(st.pct * 100)}%</option>)}
+        </select>
+        <div className="muted">2週ごとに1段階上がり、4週に1回は回復週（量が75%）になります。きつい日が2回続くと据え置き、7日以上あくと1段階戻ります。選び直すと今日から数え直します。</div>
+      </div>
       <div className="card">
         <label>目標ラインの種目と種目の間の休憩（健康クイズが出ます）</label>
         <select value={state.profile.restSec ?? 30} onChange={(e) => update((s) => ({ ...s, profile: { ...s.profile, restSec: Number(e.target.value) } }))}>

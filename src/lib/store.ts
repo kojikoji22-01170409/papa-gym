@@ -1,4 +1,5 @@
 import { dayKey, monthKey } from './dates';
+import { freshPlanFields } from './plan';
 import type { State } from './types';
 
 const DB_NAME = 'papa-gym';
@@ -14,6 +15,7 @@ export function newState(now: Date = new Date()): State {
       tickets: 2,
       ticketMonth: monthKey(now),
       amounts: {},
+      ...freshPlanFields(dayKey(now)),
     },
     children: [],
     cheers: [],

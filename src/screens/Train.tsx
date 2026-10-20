@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ScreenProps } from '../App';
 import { byId, gifUrl, setLabel } from '../lib/exercises';
-import { suggestAmount } from '../lib/rewards';
+import { amountFor, planFor, TOP_STAGE } from '../lib/plan';
 import { completeSession } from '../lib/actions';
 import type { ExerciseLog, Feel } from '../lib/types';
 import { Rest } from './Rest';
@@ -43,8 +43,9 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
   if (!ex) return null;
   const restSec = state.profile.restSec ?? DEFAULT_REST_SEC;
 
-  const amount = state.profile.amounts[ex.id] ?? ex.amount;
-  const suggestion = suggestAmount(state.logs, ex, amount);
+  const plan = planFor(state.profile, today, line === 'min');
+  const amount = amountFor(ex, plan);
+  const topStage = plan.stage === TOP_STAGE && !plan.recovery && !plan.light;
 
   const finish = (logs: ExerciseLog[]) => {
     if (logs.length === 0) { go({ name: 'home' }); return; }
@@ -61,8 +62,9 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
   };
 
   const afterExercise = (logs: ExerciseLog[]) => {
-    // Rest (with the health quiz) only on the goal line; the 1-exercise minimum line stays instant.
-    if (line === 'goal' && restSec > 0 && idx + 1 < menu.length) setResting(true);
+    // Rest (with the health quiz) after strength moves on the goal line; stretches flow straight on,
+    // and the 1-exercise minimum line stays instant.
+    if (line === 'goal' && restSec > 0 && idx + 1 < menu.length && ex.category !== 'stretch') setResting(true);
     else next(logs);
   };
 
@@ -98,7 +100,12 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
         <img className="gif" src={gifUrl(ex.id)} alt={`${ex.name}の動き`} />
         <h1>{ex.name}</h1>
         <div className="amount">{setLabel(ex, amount)}</div>
-        <p>{ex.how}</p>
+        <span className="pill">{ex.category === 'stretch' ? '伸ばす場所' : '効く場所'}：{ex.muscles}</span>
+        {ex.unit === 'sec' && <Countdown seconds={amount} />}
+        <h3>やり方</h3>
+        <ol className="steps">{ex.steps.map((t) => <li key={t}>{t}</li>)}</ol>
+        <div className="benefit"><b>効能</b><br />{ex.benefit}</div>
+        {topStage && ex.hard && <div className="card banner"><b>レベルアップ版</b><br />{ex.hard}</div>}
         {ex.easy && (
           <label style={{ display: 'flex', gap: 8, alignItems: 'center', color: 'inherit' }}>
             <input type="checkbox" style={{ width: 24, minHeight: 24 }} checked={easy} onChange={(e) => setEasy(e.target.checked)} />
@@ -106,17 +113,7 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
           </label>
         )}
         <p className="muted">痛みや違和感があるときは無理せず中止してください。</p>
-        {ex.unit === 'sec' && <Countdown seconds={amount} />}
       </div>
-      {suggestion && (
-        <div className="card banner">
-          最近3回とも楽でした。{ex.unit === 'reps' ? `${amount}回 → ${suggestion}回` : `${amount}秒 → ${suggestion}秒`} に増やしますか？
-          <div className="row" style={{ marginTop: 8 }}>
-            <button className="small primary" onClick={() => update((s) => ({ ...s, profile: { ...s.profile, amounts: { ...s.profile.amounts, [ex.id]: suggestion } } }))}>増やす</button>
-            <span className="muted">そのままならこのまま進めてください</span>
-          </div>
-        </div>
-      )}
       <div className="feel">
         {FEEL.map((f) => (
           <button key={f.feel} className={f.feel === 'normal' ? 'primary' : ''} onClick={() => complete(f.feel)}>{f.label}</button>

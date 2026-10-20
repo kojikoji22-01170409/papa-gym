@@ -31,6 +31,7 @@ export function Rest({ state, update, today, seconds, next, onNext }: Pick<Scree
         <div className="muted">休憩</div>
         <div className="timer">{left > 0 ? left : 0}<small style={{ fontSize: 20 }}>秒</small></div>
         <div className="muted">次は「{next.name}」</div>
+        <div className="muted">{next.category === 'stretch' ? '伸ばす場所' : '効く場所'}：{next.muscles}</div>
       </div>
 
       <div className="card">

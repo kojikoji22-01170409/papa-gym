@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { applyMonthlyTickets } from './lib/rewards';
 import { dayKey } from './lib/dates';
+import { withPlan } from './lib/plan';
 import { loadState, newState, saveState } from './lib/store';
 import type { SessionResult } from './lib/actions';
 import type { State } from './lib/types';
@@ -41,7 +42,7 @@ export function App() {
     (async () => {
       const loaded = (await loadState()) ?? newState();
       const t = dayKey();
-      commit({ ...loaded, profile: applyMonthlyTickets(loaded.profile, t) });
+      commit(withPlan({ ...loaded, profile: applyMonthlyTickets(loaded.profile, t) }, t));
       void navigator.storage?.persist?.();
     })();
   }, [commit]);

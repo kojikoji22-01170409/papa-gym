@@ -1,4 +1,5 @@
 import { addDays } from './dates';
+import { adjustStage } from './plan';
 import { drawCards } from './cards';
 import {
   CARDS_PER_DAY,
@@ -64,6 +65,7 @@ export function completeSession(
     days: { ...state.days, [today]: { date: today, kind: effective, points: POINTS[effective] } },
     logs: [...state.logs, ...logs],
   };
+  next = adjustStage(next, today, !!prev);
   const drawn = newCards > 0 ? drawCards(next, newCards, rng) : [];
   next = addCards(next, drawn);
 

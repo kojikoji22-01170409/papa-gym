@@ -51,6 +51,10 @@ export interface Profile {
   ticketMonth: string; // month the monthly tickets were last granted
   amounts: Record<string, number>; // user-adopted amount per exercise
   restSec?: number; // rest between goal-line exercises (0 = none, default 30)
+  stageStart?: string; // day the staged plan counts weeks from
+  stageBase?: number; // stage index (0-4) that applies in the first weeks
+  stageShift?: number; // weeks the progression was held back (hard days, long breaks)
+  stageAdjusted?: string; // last day an automatic hold/step-back was applied
 }
 
 export interface CardStock {

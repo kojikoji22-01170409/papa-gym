@@ -260,12 +260,84 @@ def chest_shoulder(t):
                  kb=(-1, -1), eb=(1, 1), back=(postprop,))
 
 
+def calf_stretch(t):
+    k = ease(t)
+    wall = 232
+    a = lerp(13, 21, k)
+    ra = (96, GY)
+    sh = add(ra, v(a, 205))
+    hip = add(ra, v(a, 119))
+    hand = (wall - 6, sh[1] + 6)
+    wallprop = lambda d, s, bone: d.rectangle([s((wall, 40)), s((wall + 14, GY + 6))], fill=PROP)
+    return build(hip, sh, add(sh, v(a, 30)), [foot(hip[0] + 52), (ra, TOE)], [hand, (hand[0] - 3, hand[1])],
+                 kb=(-1, -1), eb=(-1, -1), back=(wallprop,))
+
+
+def glute_hug(t):
+    k = ease(t)
+    shp = (86, GY - 12)
+    hip = (shp[0] + TO, GY - 12)
+    head = (shp[0] - (NECK + HEAD), shp[1])
+    th = math.radians(lerp(120, 148, k))
+    knee = (hip[0] + T * math.cos(th), hip[1] - T * math.sin(th))
+    foot_n = (knee[0] + lerp(46, 12, k), knee[1] + lerp(26, 52, k))
+    far = (hip[0] + REACH - 6, GY - 10)
+    hand = (knee[0] + 2, knee[1] - 6)
+    return build(hip, shp, head, [(foot_n, None), (far, None)], [hand, (hand[0] - 4, hand[1] + 2)],
+                 kb=(-1, -1), eb=(-1, -1), knees=(knee, None))
+
+
+def childs_pose(t):
+    k = ease(t)
+    knee = (150, GY - 8)
+    hip = (lerp(124, 100, k), GY - lerp(38, 34, k))
+    phi = math.radians(lerp(14, 9, k))
+    sh = (hip[0] + TO * math.cos(phi), hip[1] - TO * math.sin(phi))
+    head = (sh[0] + 22, sh[1] + lerp(6, 16, k))
+    hand = (sh[0] + 56, GY - 6)
+    return build(hip, sh, head, [((88, GY - 8), None), ((84, GY - 6), None)], [hand, (hand[0] - 4, hand[1])],
+                 kb=(-1, -1), eb=(1, 1), knees=(knee, (knee[0] - 3, knee[1])))
+
+
+def scapula_stretch(t):
+    k = ease(t)
+    hip = (176, GY - 116)
+    sh = add(hip, v(lerp(0, 12, k), TO - 4 * k))
+    mid = ((hip[0] + sh[0]) / 2 - lerp(0, 14, k), (hip[1] + sh[1]) / 2)
+    hands = [(sh[0] + 74, sh[1] + 6)] * 2
+    head = (sh[0] + 6 + 4 * k, sh[1] - (NECK + HEAD) + 8 * k)
+    return build(hip, sh, head, [foot(180), foot(172)], hands, kb=(-1, -1), eb=(1, 1), mid=mid)
+
+
+def forward_fold(t):
+    k = ease(t)
+    hip = (lerp(164, 138, k), GY - 116)
+    lean = lerp(0, 148, k)
+    sh = add(hip, v(lean, TO))
+    hand = (sh[0] + 6, min(GY - 8, sh[1] + 72))
+    head = add(sh, v(lean + 6, NECK + HEAD))
+    return build(hip, sh, head, [foot(166), foot(158)], [hand, (hand[0] - 4, hand[1])], kb=(-1, -1), eb=(1, 1))
+
+
+def thoracic_reach(t):
+    p = quad(t, 'bird')
+    k = ease(t)
+    sh = p['sh']
+    p['hand2'] = lerp2((sh[0] + 0, GY - 2), (sh[0] + 6, sh[1] - 74), k)
+    p['el2'] = ik(sh, p['hand2'], UA, FA, 1)
+    p['foot2'], p['toe2'] = (95 - 3, GY - 6), None
+    p['knee2'] = (152, GY - 4)
+    p['head'] = (sh[0] + 26, sh[1] - 12 - 6 * k)
+    return p
+
+
 EXERCISES = {
     'squat': (squat, 1), 'back-lunge': (back_lunge, 1), 'hip-lift': (hip_lift, 1), 'calf-raise': (calf_raise, 1),
     'pushup': (pushup, 1), 'wall-pushup': (wall_pushup, 1), 'chair-dip': (chair_dip, 1), 'superman': (superman, 1),
     'plank': (plank, 2), 'side-plank': (side_plank, 1), 'dead-bug': (dead_bug, 1), 'bird-dog': (bird_dog, 1),
     'hamstring': (hamstring, 2), 'hip-flexor': (hip_flexor, 2), 'chest-shoulder': (chest_shoulder, 2),
-    'cat-cow': (cat_cow, 1), 'carry-squat': (lambda t: squat(t, kid=True), 1), 'kid-plank': (kid_plank, 2),
+    'cat-cow': (cat_cow, 1), 'calf-stretch': (calf_stretch, 2), 'glute-hug': (glute_hug, 2), 'childs-pose': (childs_pose, 2),
+    'scapula-stretch': (scapula_stretch, 2), 'forward-fold': (forward_fold, 2), 'thoracic-reach': (thoracic_reach, 2), 'carry-squat': (lambda t: squat(t, kid=True), 1), 'kid-plank': (kid_plank, 2),
 }
 
 
