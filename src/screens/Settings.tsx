@@ -109,7 +109,7 @@ export function Settings({ state, update, today, replace }: ScreenProps & { repl
         <select value={plan.stage} onChange={(e) => update((s) => ({ ...s, profile: { ...s.profile, stageStart: today, stageBase: Number(e.target.value), stageShift: 0, stageAdjusted: undefined } }))}>
           {STAGES.map((st, i) => <option key={st.name} value={i}>ステージ{i + 1}「{st.name}」量{Math.round(st.pct * 100)}%</option>)}
         </select>
-        <div className="muted">2週ごとに1段階上がり、4週に1回は回復週（量が75%）になります。きつい日が2回続くと据え置き、7日以上あくと1段階戻ります。選び直すと今日から数え直します。</div>
+        <div className="muted">2週ごとに1段階上がり、4週に1回は回復週（量がその段階の75%）になります。きつい日が2回続くと据え置き、7日以上あくと1段階戻ります。選び直すと今日から数え直します。</div>
       </div>
       <div className="card">
         <label>目標ラインの種目と種目の間の休憩（健康クイズが出ます）</label>

@@ -256,7 +256,7 @@ describe('staged plan', () => {
     expect(planFor(p, day(14)).stage).toBe(3); // week 3
     const rec = planFor(p, day(21)); // week 4 = recovery
     expect(rec.recovery).toBe(true);
-    expect(rec.pct).toBe(0.75);
+    expect(rec.pct).toBeCloseTo(1.05); // stage 4 (140%) x 0.75
     expect(planFor(p, day(28)).recovery).toBe(false);
     expect(planFor(p, day(28 + 7)).stage).toBe(4);
     expect(planFor(p, day(400)).stage).toBe(4); // capped
@@ -264,10 +264,11 @@ describe('staged plan', () => {
   });
   it('scales strength, keeps stretches long and family moves unscaled', () => {
     const light = planFor(base().profile, day(0), true);
-    expect(amountFor(byId('squat')!, light)).toBe(7);
-    expect(amountFor(byId('plank')!, light)).toBe(20);
+    expect(amountFor(byId('squat')!, light)).toBe(9);
+    expect(amountFor(byId('plank')!, light)).toBe(25);
     const std = planFor(base().profile, day(0));
-    expect(amountFor(byId('squat')!, std)).toBe(10);
+    expect(amountFor(byId('squat')!, std)).toBe(12);
+    expect(amountFor(byId('plank')!, std)).toBe(35);
     expect(amountFor(byId('hamstring')!, std)).toBe(30);
     expect(amountFor(byId('carry-squat')!, light)).toBe(8);
     expect(amountFor(byId('cat-cow')!, std)).toBe(10);

@@ -2,19 +2,20 @@ import { diffDays } from './dates';
 import type { Exercise } from './exercises';
 import type { Profile, State } from './types';
 
-/** Stage ladder: strength volume (100% = the base amounts) and stretch hold seconds per stage. */
+/** Stage ladder: strength volume (100% = the base amounts in exercises.ts) and stretch hold seconds per stage. */
 export const STAGES = [
-  { name: '慣らし', pct: 0.7, stretchSec: 25 },
-  { name: '基礎固め', pct: 0.85, stretchSec: 30 },
-  { name: '標準', pct: 1, stretchSec: 30 },
-  { name: 'ステップアップ', pct: 1.15, stretchSec: 35 },
-  { name: 'ハイ', pct: 1.3, stretchSec: 40 },
+  { name: '慣らし', pct: 0.85, stretchSec: 25 },
+  { name: '基礎固め', pct: 1, stretchSec: 30 },
+  { name: '標準', pct: 1.2, stretchSec: 30 },
+  { name: 'ステップアップ', pct: 1.4, stretchSec: 35 },
+  { name: 'ハイ', pct: 1.6, stretchSec: 40 },
 ] as const;
 
 export const TOP_STAGE = STAGES.length - 1;
 /** Takuya started at stage 3 ("標準"); a brand-new install starts gently at stage 1. */
 export const DEFAULT_START_STAGE = 2;
-const RECOVERY_PCT = 0.75;
+/** A recovery week is the current stage's volume x this. */
+const RECOVERY_FACTOR = 0.75;
 const RECOVERY_STRETCH_SEC = 30;
 /** Week 4, 8, 12 ... are recovery weeks. */
 const isRecoveryWeek = (week: number) => (week + 1) % 4 === 0;
@@ -47,7 +48,7 @@ export function planFor(profile: Profile, today: string, light = false): Plan {
     stage,
     week,
     recovery,
-    pct: recovery ? RECOVERY_PCT : st.pct,
+    pct: recovery ? st.pct * RECOVERY_FACTOR : st.pct,
     stretchSec: recovery ? RECOVERY_STRETCH_SEC : st.stretchSec,
     stretchDay: recovery && [2, 5].includes(days % 7),
     light: false,
