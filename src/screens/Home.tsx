@@ -7,6 +7,9 @@ import { FAMILY_TEMPLATES } from '../lib/cards';
 import { goalMenu, shortLabel } from '../lib/exercises';
 import { amountFor, planFor } from '../lib/plan';
 import { totals, weeklyReps } from '../lib/stats';
+import { Muki } from '../components/Muki';
+import { Hearts, MOOD_TEXT } from './Pet';
+import { STAGE_NAMES, hatchPending, petView, speechFor } from '../lib/pet';
 
 function cheerLine(state: ScreenProps['state'], today: string): string {
   const n = Number(today.replace(/-/g, ''));
@@ -19,6 +22,7 @@ function cheerLine(state: ScreenProps['state'], today: string): string {
 
 export function Home({ state, update, today, go }: ScreenProps) {
   const [dismissed, setDismissed] = useState(false);
+  const [say, setSay] = useState<string>();
   const streak = streakOf(state.days, today);
   const rec = state.days[today];
   const lv = levelOf(state.profile.points);
@@ -31,6 +35,7 @@ export function Home({ state, update, today, go }: ScreenProps) {
   const weeks = weeklyReps(state, today, 2);
   const [lastWeek, thisWeek] = weeks;
   const total = totals(state);
+  const pet = petView(state, today);
 
   return (
     <>
@@ -53,7 +58,12 @@ export function Home({ state, update, today, go }: ScreenProps) {
         </div>
       )}
 
-      <div className="card hero">
+      <div className="card hero room">
+        <div className="pet-bubble" aria-live="polite">{say ?? (rec ? (rec.kind === 'goal' ? '今日は目標ライン達成！' : '今日は最低ライン達成！') : cheerLine(state, today))}</div>
+        <Muki name={pet.name} stage={pet.stage} type={pet.type} mood={pet.mood} worn={pet.worn} size={170} onTap={() => setSay(speechFor(state, today))} />
+        <div><b className="pet-name">{pet.name}</b> <span className="pill">{STAGE_NAMES[pet.stage]}</span></div>
+        <div className="row" style={{ justifyContent: 'center', marginTop: 4 }}><Hearts n={pet.genki} /><span className="muted">{MOOD_TEXT[pet.mood]}</span></div>
+        <div className="divider" />
         <div className="row spread" style={{ alignItems: 'flex-end' }}>
           <div>
             <div className="muted">連続記録</div>
@@ -63,8 +73,6 @@ export function Home({ state, update, today, go }: ScreenProps) {
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e4600b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-6 1-9z" /></svg>
           </span>
         </div>
-        <div style={{ marginTop: 8 }}>{rec ? (rec.kind === 'goal' ? '今日は目標ライン達成！' : '今日は最低ライン達成！') : '今日はまだこれから'}</div>
-        <div className="muted">{cheerLine(state, today)}</div>
         <div className="divider" />
         <div className="row spread">
           <b>Lv.{lv.level} {lv.title}</b>
@@ -73,6 +81,13 @@ export function Home({ state, update, today, go }: ScreenProps) {
         <div className="bar"><i style={{ width: `${pct}%` }} /></div>
         {lv.next && <div className="muted" style={{ marginTop: 6 }}>次のレベルまで あと {lv.next - state.profile.points}pt</div>}
       </div>
+
+      {hatchPending(state) && (
+        <button className="card banner" style={{ width: '100%', textAlign: 'left' }} onClick={() => go({ name: 'pet' })}>
+          <b>たまごがかえりました！</b>
+          <div className="muted">ムキたまタブで名前をつけてあげましょう ›</div>
+        </button>
+      )}
 
       {state.logs.length > 0 && (
         <button className="card" style={{ width: '100%', textAlign: 'left' }} onClick={() => go({ name: 'records' })}>

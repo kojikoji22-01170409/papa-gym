@@ -1,6 +1,8 @@
 import type { ScreenProps } from '../App';
 import type { SessionResult } from '../lib/actions';
 import { cardView } from '../lib/cards';
+import { Muki } from '../components/Muki';
+import { ITEMS, STAGE_NAMES, petView } from '../lib/pet';
 
 export function CardBox({ id, state, note }: { id: string; state: ScreenProps['state']; note?: string }) {
   const v = cardView(id, state);
@@ -20,8 +22,10 @@ export function CardBox({ id, state, note }: { id: string; state: ScreenProps['s
   );
 }
 
-export function Done({ state, go, result }: ScreenProps & { result: SessionResult }) {
+export function Done({ state, go, today, result }: ScreenProps & { result: SessionResult }) {
   const newIds = result.cards.filter((id, i) => state.cards[id]?.count === 1 && result.cards.indexOf(id) === i);
+  const pet = petView(state, today);
+  const items = result.newItems.map((id) => ITEMS.find((i) => i.id === id)?.name).filter(Boolean);
   return (
     <>
       <div className="card hero">
@@ -29,6 +33,13 @@ export function Done({ state, go, result }: ScreenProps & { result: SessionResul
         <div className="streak">{result.streak}<small>日連続</small></div>
         <div>+{result.pointsEarned}pt</div>
         {result.milestone && <div style={{ marginTop: 8 }}><b>🎉 {result.milestone}日連続、おめでとうございます！</b></div>}
+      </div>
+      <div className="card pet-card">
+        <Muki name={pet.name} stage={pet.stage} type={pet.type} mood="happy" worn={pet.worn} size={140} />
+        {result.grewTo !== undefined
+          ? <div><b>{pet.name}が「{STAGE_NAMES[result.grewTo]}」に成長しました！🎉</b></div>
+          : <div className="muted">{pet.name}もよろこんでいます</div>}
+        {items.length > 0 && <div style={{ marginTop: 6 }}><b>新しい着せかえ：{items.join('、')}</b><div className="muted">ムキたまタブでつけられます</div></div>}
       </div>
       {result.cards.length > 0 && <h2>今日のカード</h2>}
       {result.cards.map((id, i) => (

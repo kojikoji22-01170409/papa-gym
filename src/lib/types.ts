@@ -75,6 +75,13 @@ export interface State {
   selfRewards: SelfReward[];
   missionDone: Record<string, boolean>; // date -> done
   quiz?: QuizStats;
+  pet?: Pet;
+}
+
+export interface Pet {
+  name?: string; // chosen when the egg hatches (default ムキたま)
+  worn?: { hat?: string; face?: string; neck?: string; back?: string; bg?: string };
+  seen?: string[]; // pet encyclopedia entries ("2", "3:power" ...)
 }
 
 export interface QuizStats {

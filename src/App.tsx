@@ -12,10 +12,13 @@ import { Done } from './screens/Done';
 import { Check } from './screens/Check';
 import { Records } from './screens/Records';
 import { Settings } from './screens/Settings';
+import { Pet } from './screens/Pet';
+import { markSeen } from './lib/pet';
 
 export type View =
   | { name: 'home' }
   | { name: 'records' }
+  | { name: 'pet' }
   | { name: 'settings' }
   | { name: 'pick' }
   | { name: 'check' }
@@ -24,6 +27,7 @@ export type View =
 
 const TABS = [
   ['home', 'ホーム', <><path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" /></>],
+  ['pet', 'ムキたま', <><circle cx="12" cy="13" r="7" /><path d="M9.5 12.5v1M14.5 12.5v1M10 16c1.2 1 2.8 1 4 0" /><path d="M9 5l1.5 2M15 5l-1.5 2" /></>],
   ['records', 'あゆみ', <path d="M4 20V10M10 20V4M16 20v-8M22 20H2" />],
   ['settings', '設定', <><circle cx="12" cy="12" r="3" /><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.7a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2L10 21h4l.6-2.7a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z" /></>],
 ] as const;
@@ -65,15 +69,23 @@ export function App() {
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, [commit]);
 
+  // the pet's look today goes into the encyclopedia
+  useEffect(() => {
+    if (!ref.current) return;
+    const next = markSeen(ref.current, today);
+    if (next !== ref.current) commit(next);
+  }, [state, today, commit]);
+
   if (!state) return <div className="app muted">読み込み中…</div>;
 
   const props = { state, update, today, go: setView };
-  const tab = view.name === 'home' || view.name === 'records' || view.name === 'settings' ? view.name : undefined;
+  const tab = view.name === 'home' || view.name === 'records' || view.name === 'pet' || view.name === 'settings' ? view.name : undefined;
 
   return (
     <div className="app">
       {view.name === 'home' && <Home {...props} />}
       {view.name === 'records' && <Records {...props} />}
+      {view.name === 'pet' && <Pet {...props} />}
       {view.name === 'settings' && <Settings {...props} replace={commit} />}
       {view.name === 'pick' && <Pick {...props} />}
       {view.name === 'check' && <Check {...props} />}

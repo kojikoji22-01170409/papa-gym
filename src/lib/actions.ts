@@ -1,11 +1,13 @@
 import { addDays } from './dates';
 import { adjustStage } from './plan';
+import { stageOf, unlockedItems } from './pet';
 import { drawCards } from './cards';
 import {
   CARDS_PER_DAY,
   FITNESS_CHECK_POINTS,
   MISSION_POINTS,
   POINTS,
+  achievedDays,
   streakOf,
 } from './rewards';
 import type { DayKind, ExerciseLog, FitnessCheck, State } from './types';
@@ -34,6 +36,10 @@ export interface SessionResult {
   cards: string[];
   streak: number;
   milestone?: number;
+  /** New pet stage reached by this session. */
+  grewTo?: number;
+  /** Dress-up items unlocked by this session. */
+  newItems: string[];
 }
 
 const RANK: Record<DayKind, number> = { rest: 0, min: 1, goal: 2 };
@@ -71,7 +77,11 @@ export function completeSession(
 
   const streak = streakOf(next.days, today);
   const milestone = !prev && streak > hadStreak && MILESTONES.includes(streak) ? streak : undefined;
-  return { state: next, kind: effective, pointsEarned: earned, cards: drawn, streak, milestone };
+  const before = stageOf(achievedDays(state.days));
+  const after = stageOf(achievedDays(next.days));
+  const had = unlockedItems(state);
+  const newItems = unlockedItems(next).filter((i) => !had.includes(i));
+  return { state: next, kind: effective, pointsEarned: earned, cards: drawn, streak, milestone, grewTo: after > before ? after : undefined, newItems };
 }
 
 /** Spends one rest ticket to keep the streak alive across yesterday. */
@@ -98,7 +108,9 @@ export function saveCheck(
     profile: { ...state.profile, points: state.profile.points + FITNESS_CHECK_POINTS },
   };
   const res = completeSession(withCheck, today, 'goal', [], rng);
-  return { ...res, pointsEarned: res.pointsEarned + FITNESS_CHECK_POINTS };
+  const had = unlockedItems(state);
+  const newItems = unlockedItems(res.state).filter((i) => !had.includes(i));
+  return { ...res, pointsEarned: res.pointsEarned + FITNESS_CHECK_POINTS, newItems };
 }
 
 export function completeMission(state: State, today: string): State {
