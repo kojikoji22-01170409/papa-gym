@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ScreenProps } from '../App';
 import { useTicket, completeMission, missionOf } from '../lib/actions';
 import { canRescueYesterday, levelOf, streakOf } from '../lib/rewards';
-import { diffDays, monthKey } from '../lib/dates';
+import { addDays, diffDays, monthKey } from '../lib/dates';
 import { FAMILY_TEMPLATES } from '../lib/cards';
 import { goalMenu, shortLabel } from '../lib/exercises';
 import { amountFor, planFor } from '../lib/plan';
@@ -23,6 +23,7 @@ function cheerLine(state: ScreenProps['state'], today: string): string {
 export function Home({ state, update, today, go }: ScreenProps) {
   const [dismissed, setDismissed] = useState(false);
   const [say, setSay] = useState<string>();
+  const [ticketOpen, setTicketOpen] = useState(false);
   const streak = streakOf(state.days, today);
   const rec = state.days[today];
   const lv = levelOf(state.profile.points);
@@ -31,6 +32,7 @@ export function Home({ state, update, today, go }: ScreenProps) {
   const plan = planFor(state.profile, today);
   const menu = goalMenu(rotation, plan.stretchDay);
   const checkDue = !state.checks.some((c) => c.date.slice(0, 7) === monthKey(new Date(`${today}T12:00:00`)));
+  const ticketUsable = state.profile.tickets > 0 && !state.days[addDays(today, -1)];
   const rescue = !dismissed && canRescueYesterday(state, today);
   const weeks = weeklyReps(state, today, 2);
   const [lastWeek, thisWeek] = weeks;
@@ -41,11 +43,23 @@ export function Home({ state, update, today, go }: ScreenProps) {
     <>
       <div className="brand">
         <h1>パパジム</h1>
-        <span className="ticket">
+        <button className="ticket" aria-expanded={ticketOpen} onClick={() => setTicketOpen((o) => !o)}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z" /><path d="M13 6v12" strokeDasharray="2 3" /></svg>
           お休みチケット {state.profile.tickets}
-        </span>
+        </button>
       </div>
+
+      {ticketOpen && (
+        <div className="card banner">
+          <b>お休みチケット：{state.profile.tickets}枚</b>
+          <div className="muted">体調や用事でできなかった「昨日」に使うと、連続記録がつながります。毎月2枚もらえます（最大3枚）。</div>
+          {ticketUsable ? (
+            <button className="primary" style={{ marginTop: 10 }} onClick={() => { update((s) => useTicket(s, today)); setTicketOpen(false); }}>昨日にチケットを使う</button>
+          ) : (
+            <div style={{ marginTop: 8 }}>{state.profile.tickets <= 0 ? '今はチケットがありません。' : state.days[addDays(today, -1)] ? '昨日はすでに記録があるので、使う必要はありません。' : '使えるのは昨日だけです。'}</div>
+          )}
+        </div>
+      )}
 
       {rescue && (
         <div className="card banner">
