@@ -341,6 +341,379 @@ EXERCISES = {
 }
 
 
+# ---------------------------------------------------------------- poses (menu v3)
+def wide_squat(t):
+    k = ease(t)
+    hip = (lerp(176, 168, k), lerp(GY - 116, GY - 58, k))
+    lean = lerp(0, 22, k)
+    sh = add(hip, v(lean, TO))
+    hands = [add(sh, (30, lerp(10, -4, k)))] * 2
+    return build(hip, sh, head_of(sh, lean), [foot(206), foot(150)], hands)
+
+
+def wall_sit(t):
+    k = math.sin(math.pi * t)
+    hip = (116, GY - S_)
+    sh = (hip[0], hip[1] - TO)
+    knee = (hip[0] + T, hip[1])
+    fo = (knee[0], GY)
+    wall = lambda d, s, bone: d.rectangle([s((84, 40)), s((100, GY + 6))], fill=PROP)
+    hands = [(sh[0] + 52, sh[1] + 36 - 4 * k)] * 2
+    return build(hip, sh, (sh[0], sh[1] - (NECK + HEAD)), [foot(fo[0]), foot(fo[0] - 4)], hands, knees=(knee, (knee[0] - 3, knee[1])), back=(wall,))
+
+
+def side_lunge(t):
+    k = ease(t)
+    hip = (lerp(150, 140, k), lerp(GY - 116, GY - 72, k))
+    sh = add(hip, v(lerp(0, 18, k), TO))
+    straight = (hip[0] + lerp(30, 100, k), GY)
+    bent = (hip[0] - lerp(0, 14, k), GY)
+    hands = [(sh[0] + 34, sh[1] + 30)] * 2
+    return build(hip, sh, head_of(sh, 18 * k), [(bent, TOE), (straight, TOE)], hands, knees=(None, None), kb=(-1, 1))
+
+
+def split_squat(t):
+    k = ease(t)
+    hip = (lerp(160, 158, k), lerp(GY - 112, GY - 64, k))
+    sh = add(hip, v(2, TO))
+    rear = (hip[0] - 96, lerp(GY - 6, GY - 14, k))
+    return build(hip, sh, head_of(sh, 2), [foot(hip[0] + 36), (rear, (14, 16))], [(sh[0] + 30, sh[1] + 40)] * 2, kb=(-1, -1),
+                 knees=(None, (hip[0] - 40, GY - 8 - 6 * k)))
+
+
+def single_hip_lift(t):
+    p = hip_lift(t)
+    k = ease(t)
+    p['foot2'] = add(p['hip'], (T + S_ - 20, -60 - 16 * k))
+    p['knee2'] = add(p['hip'], (T - 8, -50 * 0.2 - 60))
+    p['knee2'] = ik(p['hip'], p['foot2'], T, S_, -1)
+    p['toe2'] = None
+    return p
+
+
+def good_morning(t):
+    k = ease(t)
+    lean = lerp(0, 78, k)
+    hip = (lerp(176, 150, k), GY - 116)
+    sh = add(hip, v(lean, TO))
+    head = add(sh, v(lean + 4, NECK + HEAD))
+    hands = [add(sh, v(lean - 70, 26))] * 2
+    hands = [(sh[0] - 12, sh[1] - 18)] * 2
+    return build(hip, sh, head, [foot(176), foot(170)], hands, kb=(-1, -1), eb=(1, 1))
+
+
+def single_calf_raise(t):
+    p = calf_raise(t)
+    p['knee2'] = (p['hip'][0] - 28, p['hip'][1] + 34)
+    p['foot2'] = (p['hip'][0] - 70, p['hip'][1] + 44)
+    p['toe2'] = None
+    p['knee2'] = ik(p['hip'], p['foot2'], T, S_, 1)
+    return p
+
+
+def incline_pushup(t):
+    k = ease(t)
+    toe = (45, GY)
+    hand = (262, GY - 58)
+    sh = (lerp(236, 246, k), lerp(GY - 150, GY - 126, k))
+    ank = (toe[0] + 6, toe[1] - 6)
+    hip = lerp2(ank, sh, 0.55)
+    chair = lambda d, s, bone: d.rectangle([s((250, GY - 58)), s((300, GY - 50))], fill=PROP)
+    chair2 = lambda d, s, bone: d.rectangle([s((256, GY - 50)), s((264, GY))], fill=PROP)
+    return build(hip, sh, (sh[0] + 28, sh[1] - 14), [(ank, (-8, 5)), ((ank[0] - 3, ank[1]), (-8, 5))], [hand, (hand[0] - 4, hand[1])],
+                 eb=(-1, -1), back=(chair, chair2))
+
+
+def wide_pushup(t):
+    p = pushup(t)
+    k = ease(t)
+    p['hand'] = (276, GY)
+    p['hand2'] = (272, GY)
+    p['el'] = ik(p['sh'], p['hand'], UA, FA, -1)
+    p['el2'] = ik(p['sh'], p['hand2'], UA, FA, -1)
+    return p
+
+
+def pike_pushup(t):
+    k = ease(t)
+    hip = (130, lerp(GY - 150, GY - 132, k))
+    hand = (236, GY)
+    ank = (56, GY - 6)
+    sh = (lerp(200, 214, k), lerp(GY - 140, GY - 84, k))
+    head = (sh[0] + 14, sh[1] + 22)
+    return build(hip, sh, head, [(ank, (-8, 5)), ((ank[0] - 3, ank[1]), (-8, 5))], [hand, (hand[0] - 4, hand[1])], kb=(-1, -1), eb=(-1, -1))
+
+
+def shoulder_tap(t):
+    k = ease(t)
+    p = plank_pose(0)
+    sh = p['sh']
+    p['hand2'] = lerp2((p['hand'][0] - 3, p['hand'][1]), (sh[0] + 6, sh[1] + 2), k)
+    p['el2'] = ik(sh, p['hand2'], UA, FA, -1)
+    return p
+
+
+def _prone(sh, hip, hands, head, lift=0, ank=None, eb=(1, 1)):
+    ank = ank or (hip[0] - 116, GY - 12)
+    return build(hip, sh, head, [(ank, None), ((ank[0] - 3, ank[1] + 3), None)], hands, kb=(1, 1), eb=eb)
+
+
+def towel_pulldown(t):
+    k = ease(t)
+    hip, sh = (150, GY - 12), (236, GY - 22)
+    far = (sh[0] + 74, GY - 40)
+    near = (sh[0] + 6, GY - 36)
+    hand = lerp2(far, near, k)
+    towel = lambda d, s, bone: d.line([s((hand[0] + 4, hand[1])), s((hand[0] + 4 - 6, hand[1] - 2))], fill=(255, 255, 255), width=6 * SS)
+    return _prone(sh, hip, [hand, (hand[0] - 3, hand[1] + 3)], (sh[0] + 28, sh[1] - 12), eb=(-1, -1))
+
+
+def snow_angel(t):
+    k = ease(t)
+    hip, sh = (150, GY - 12), (236, GY - 20)
+    th = math.radians(lerp(10, 170, k))
+    hand = (sh[0] + 76 * math.cos(th), sh[1] - 8 - 24 * math.sin(th))
+    return _prone(sh, hip, [hand, (hand[0] - 3, hand[1] + 3)], (sh[0] + 28, sh[1] - 12), eb=(1, 1))
+
+
+def prone_y(t):
+    k = ease(t)
+    hip, sh = (150, GY - 12), (236, GY - 12 - 6 * k)
+    hand = (sh[0] + 66, GY - 14 - 34 * k)
+    return _prone(sh, hip, [hand, (hand[0] - 3, hand[1] + 3)], (sh[0] + 28, sh[1] - 12 - 4 * k))
+
+
+def curl_up(t):
+    k = ease(t)
+    hip = (180, GY - 12)
+    phi = math.radians(lerp(0, 22, k))
+    sh = (hip[0] - TO * math.cos(phi), hip[1] - TO * math.sin(phi))
+    head = (sh[0] - (NECK + HEAD) * math.cos(phi) - 4, sh[1] - (NECK + HEAD) * math.sin(phi) - 4)
+    knee = (hip[0] + 44, GY - 60)
+    return build(hip, sh, head, [((hip[0] + 84, GY - 8), None), ((hip[0] + 90, GY - 6), None)], [(sh[0] + 30, GY - 30)] * 2,
+                 kb=(-1, -1), eb=(-1, -1), knees=(knee, (knee[0] + 2, knee[1])))
+
+
+def mountain_climber(t):
+    p = plank_pose(0)
+    k = ease(t)
+    hip = p['hip']
+    ank2 = lerp2(p['foot2'], (hip[0] + 56, GY - 36), k)
+    p['foot2'], p['toe2'] = ank2, None
+    p['knee2'] = ik(hip, ank2, T, S_, 1)
+    return p
+
+
+def hollow_hold(t):
+    k = math.sin(math.pi * t)
+    hip = (160, GY - 12)
+    phi = math.radians(22)
+    sh = (hip[0] - TO * math.cos(phi), hip[1] - TO * math.sin(phi) - 4 * k)
+    ank = (hip[0] + REACH * math.cos(phi), hip[1] - REACH * math.sin(phi) - 6)
+    head = (sh[0] - 26, sh[1] - 6)
+    hand = (sh[0] - 76, sh[1] - 30)
+    return build(hip, sh, head, [(ank, None), ((ank[0] - 2, ank[1] + 3), None)], [hand, (hand[0] - 3, hand[1] + 3)], kb=(-1, -1), eb=(1, 1))
+
+
+def reverse_crunch(t):
+    k = ease(t)
+    shp = (86, GY - 12)
+    hip = (shp[0] + TO, GY - 12 - 22 * k)
+    head = (shp[0] - (NECK + HEAD), shp[1])
+    knee = lerp2((hip[0] + 46, hip[1] - 46), (hip[0] + 24, hip[1] - 62), k)
+    foot_ = (knee[0] + 46, knee[1] + lerp(10, 26, k) - 40)
+    return build(hip, shp, head, [(foot_, None), (foot_, None)], [(shp[0] + 74, GY - 10)] * 2, kb=(-1, -1), eb=(-1, -1),
+                 knees=(knee, (knee[0] + 3, knee[1])))
+
+
+def single_leg_stand(t):
+    k = math.sin(math.pi * t)
+    hip = (176 + 2 * k, GY - 116)
+    sh = add(hip, v(0, TO))
+    knee2 = (hip[0] + T - 6, hip[1] - 4)
+    foot2 = (knee2[0] - 6, knee2[1] + S_ - 6)
+    hands = [(sh[0] + 40, sh[1] + 22)] * 2
+    return build(hip, sh, head_of(sh, 0), [foot(176), (foot2, None)], hands, knees=(None, knee2), eb=(1, 1))
+
+
+def single_leg_reach(t):
+    k = ease(t)
+    lean = lerp(0, 80, k)
+    hip = (176, GY - 116)
+    sh = add(hip, v(lean, TO))
+    foot2 = add(hip, v(lean + 180, REACH - 4))
+    hand = (sh[0] + 14, min(GY - 14, sh[1] + 70))
+    return build(hip, sh, add(sh, v(lean + 4, NECK + HEAD)), [foot(176), (foot2, None)], [hand, (hand[0] - 3, hand[1])], kb=(-1, -1), eb=(1, 1), knees=(None, ik(hip, foot2, T, S_, -1)))
+
+
+def clamshell(t):
+    k = ease(t)
+    shp = (80, GY - 14)
+    hip = (shp[0] + TO, GY - 14)
+    head = (shp[0] - (NECK + HEAD) + 2, shp[1] + 1)
+    knee = (hip[0] + 54, GY - 30)
+    ft = (hip[0] + 6, GY - 14)
+    knee2 = (knee[0] - 4, knee[1] - 34 * k)
+    return build(hip, shp, head, [(ft, None), ((ft[0] - 2, ft[1] - 2), None)], [(shp[0] + 40, GY - 44), (shp[0] + 56, GY - 30)], kb=(-1, -1), eb=(1, 1),
+                 knees=(knee, knee2))
+
+
+def side_leg_raise(t):
+    k = ease(t)
+    shp = (70, GY - 14)
+    hip = (shp[0] + TO, GY - 14)
+    head = (shp[0] - (NECK + HEAD) + 2, shp[1] + 1)
+    foot1 = (hip[0] + REACH, GY - 10)
+    a = math.radians(lerp(0, 36, k))
+    foot2 = (hip[0] + REACH * math.cos(a), hip[1] - 4 - REACH * math.sin(a))
+    return build(hip, shp, head, [(foot1, None), (foot2, None)], [(shp[0] + 40, GY - 44), (shp[0] + 50, GY - 24)], kb=(-1, -1), eb=(1, 1))
+
+
+def donkey_kick(t):
+    p = quad(0, 'cat', 0)
+    k = ease(t)
+    p['mid'] = None
+    p['foot2'] = (95 + 40 * k, GY - 6 - 78 * k)
+    p['toe2'] = None
+    p['knee2'] = (152 - 14 * k, GY - 4 - 54 * k)
+    return p
+
+
+def quad_stretch(t):
+    k = ease(t)
+    hip = (176, GY - 116)
+    sh = add(hip, v(lerp(0, 4, k), TO))
+    knee2 = (hip[0] - 4, hip[1] + T - 4)
+    foot2 = (hip[0] - 44 * (0.6 + 0.4 * k), hip[1] + T - 4 - 40 - 6 * k)
+    hand = (foot2[0] - 2, foot2[1] - 2)
+    post = lambda d, s, bone: d.rectangle([s((232, 40)), s((244, GY + 6))], fill=PROP)
+    return build(hip, sh, head_of(sh, 0), [foot(180), (foot2, None)], [(sh[0] + 52, sh[1] + 2), hand], kb=(-1, -1), eb=(1, -1),
+                 knees=(None, knee2), back=(post,))
+
+
+def inner_thigh(t):
+    k = ease(t)
+    hip = (130, GY - 8)
+    lean = lerp(8, 36, k)
+    sh = add(hip, v(lean, TO))
+    f = (190, GY - 8)
+    knee = (lerp(168, 176, k), lerp(GY - 40, GY - 20, k))
+    hand = (f[0] - 8, f[1] - 6)
+    return build(hip, sh, add(sh, v(lean + 6, NECK + HEAD)), [(f, None), ((f[0] + 4, f[1]), None)], [hand, (hand[0] - 4, hand[1])],
+                 kb=(-1, -1), eb=(-1, -1), knees=(knee, (knee[0] - 2, knee[1] - 4)))
+
+
+def side_bend(t):
+    k = ease(t)
+    hip = (176, GY - 116)
+    lean = lerp(0, 24, k)
+    sh = add(hip, v(lean, TO))
+    head = add(sh, v(lean, NECK + HEAD))
+    hand = add(sh, v(lean + 140, 78 - 6 * k))
+    hand = add(sh, v(lean + 40, 70))
+    hand2 = (hip[0] + 14, hip[1] + 4)
+    return build(hip, sh, head, [foot(180), foot(172)], [hand, hand2], kb=(-1, -1), eb=(1, 1))
+
+
+def neck_stretch(t):
+    k = ease(t)
+    hip = (176, GY - 116)
+    sh = add(hip, v(0, TO))
+    head = add(sh, v(lerp(0, 34, k), NECK + HEAD))
+    hand = (head[0] + 4, head[1] - 14)
+    return build(hip, sh, head, [foot(180), foot(172)], [hand, (hip[0] + 14, hip[1] + 6)], kb=(-1, -1), eb=(1, 1))
+
+
+def triceps_stretch(t):
+    k = ease(t)
+    hip = (176, GY - 116)
+    sh = add(hip, v(0, TO))
+    head = head_of(sh, 0)
+    hand = (sh[0] - 6, sh[1] - 12 - 10 * k)
+    pusher = (sh[0] + 4, sh[1] - 66)
+    return build(hip, sh, head, [foot(180), foot(172)], [hand, pusher], kb=(-1, -1), eb=(-1, 1))
+
+
+def rear_shoulder(t):
+    k = ease(t)
+    hip = (176, GY - 116)
+    sh = add(hip, v(0, TO))
+    far = (sh[0] + 76, sh[1] + 8)
+    pull = (sh[0] + 34 - 4 * k, sh[1] + 2)
+    return build(hip, sh, head_of(sh, 0), [foot(180), foot(172)], [pull, far], kb=(-1, -1), eb=(1, 1))
+
+
+def figure_four(t):
+    k = ease(t)
+    shp = (86, GY - 12)
+    hip = (shp[0] + TO, GY - 12)
+    head = (shp[0] - (NECK + HEAD), shp[1])
+    knee_f = (hip[0] + 40 - 10 * k, GY - 76 - 12 * k)
+    foot_f = (knee_f[0] + 40 - 12 * k, knee_f[1] + 56 - 14 * k)
+    knee_n = (knee_f[0] + 56, knee_f[1] - 26)
+    foot_n = (knee_f[0] + 6, knee_f[1] + 4)
+    hand = (knee_f[0] + 18, knee_f[1] + 10)
+    return build(hip, shp, head, [(foot_f, None), (foot_n, None)], [hand, (hand[0] - 4, hand[1])], kb=(-1, -1), eb=(-1, -1),
+                 knees=(knee_f, knee_n))
+
+
+def spinal_twist(t):
+    k = ease(t)
+    shp = (80, GY - 12)
+    hip = (shp[0] + TO, GY - 12)
+    head = (shp[0] - (NECK + HEAD), shp[1])
+    knee = (hip[0] + lerp(46, 40, k), lerp(GY - 70, GY - 26, k))
+    ft = (knee[0] - 2 + 14, knee[1] + lerp(36, 6, k))
+    return build(hip, shp, head, [(ft, None), (ft, None)], [(shp[0] + 8, GY - 70 - 10), (shp[0] + 74, GY - 14)], kb=(-1, -1), eb=(-1, 1),
+                 knees=(knee, (knee[0] + 2, knee[1] - 4)))
+
+
+def cobra(t):
+    k = ease(t)
+    hip = (130, GY - 10)
+    phi = math.radians(lerp(8, 46, k))
+    sh = (hip[0] + TO * math.cos(phi), hip[1] - TO * math.sin(phi))
+    head = (sh[0] + (NECK + HEAD) * math.cos(phi + 0.15) + 4, sh[1] - (NECK + HEAD) * math.sin(phi + 0.15) - 6)
+    hand = (sh[0] + 14, GY - 6)
+    ank = (hip[0] - REACH + 6, GY - 8)
+    return build(hip, sh, head, [(ank, None), ((ank[0] - 3, ank[1] + 2), None)], [hand, (hand[0] - 4, hand[1])], kb=(1, 1), eb=(-1, -1))
+
+
+def arm_circle(t):
+    hip = (176, GY - 116)
+    sh = add(hip, v(0, TO))
+    th = 2 * math.pi * t
+    hand = (sh[0] + 66 * math.sin(th), sh[1] - 66 * math.cos(th))
+    hand2 = (sh[0] + 66 * math.sin(th + 0.5), sh[1] - 66 * math.cos(th + 0.5))
+    return build(hip, sh, head_of(sh, 0), [foot(180), foot(172)], [hand, hand2], kb=(-1, -1), eb=(1, 1))
+
+
+def leg_swing(t):
+    hip = (176, GY - 116)
+    sh = add(hip, v(0, TO))
+    a = 38 * math.sin(2 * math.pi * t)
+    foot2 = add(hip, v(a + 180, REACH - 6))
+    post = lambda d, s, bone: d.rectangle([s((246, 40)), s((258, GY + 6))], fill=PROP)
+    hand = (246, sh[1] + 10)
+    return build(hip, sh, head_of(sh, 0), [foot(176), (foot2, None)], [hand, (hand[0] - 3, hand[1])], kb=(-1, -1), eb=(1, 1),
+                 knees=(None, ik(hip, foot2, T, S_, 1)), back=(post,))
+
+
+NEW = {
+    'wide-squat': (wide_squat, 1), 'wall-sit': (wall_sit, 2), 'side-lunge': (side_lunge, 1), 'split-squat': (split_squat, 1),
+    'single-hip-lift': (single_hip_lift, 1), 'good-morning': (good_morning, 1), 'single-calf-raise': (single_calf_raise, 1),
+    'incline-pushup': (incline_pushup, 1), 'wide-pushup': (wide_pushup, 1), 'pike-pushup': (pike_pushup, 1), 'shoulder-tap': (shoulder_tap, 1),
+    'towel-pulldown': (towel_pulldown, 1), 'snow-angel': (snow_angel, 1), 'prone-y': (prone_y, 1),
+    'curl-up': (curl_up, 2), 'mountain-climber': (mountain_climber, 1), 'hollow-hold': (hollow_hold, 2), 'reverse-crunch': (reverse_crunch, 1),
+    'single-leg-stand': (single_leg_stand, 2), 'single-leg-reach': (single_leg_reach, 1), 'clamshell': (clamshell, 1),
+    'side-leg-raise': (side_leg_raise, 1), 'donkey-kick': (donkey_kick, 1),
+    'quad-stretch': (quad_stretch, 2), 'inner-thigh': (inner_thigh, 2), 'side-bend': (side_bend, 2), 'neck-stretch': (neck_stretch, 2),
+    'triceps-stretch': (triceps_stretch, 2), 'rear-shoulder': (rear_shoulder, 2), 'figure-four': (figure_four, 2),
+    'spinal-twist': (spinal_twist, 2), 'cobra': (cobra, 2), 'arm-circle': (arm_circle, 1), 'leg-swing': (leg_swing, 1),
+}
+EXERCISES.update(NEW)
+
+
 # ---------------------------------------------------------------- render
 def draw(J):
     img = Image.new('RGB', (W * SS, H * SS), BG)

@@ -2,9 +2,9 @@ import { useState } from 'react';
 import type { ScreenProps } from '../App';
 import { useTicket, completeMission, missionOf } from '../lib/actions';
 import { canRescueYesterday, levelOf, streakOf } from '../lib/rewards';
-import { addDays, diffDays, monthKey } from '../lib/dates';
+import { addDays, monthKey } from '../lib/dates';
 import { FAMILY_TEMPLATES } from '../lib/cards';
-import { goalMenu, shortLabel } from '../lib/exercises';
+import { dayTheme, goalMenu, shortLabel } from '../lib/exercises';
 import { amountFor, planFor } from '../lib/plan';
 import { totals, weeklyReps } from '../lib/stats';
 import { Muki } from '../components/Muki';
@@ -28,9 +28,8 @@ export function Home({ state, update, today, go }: ScreenProps) {
   const rec = state.days[today];
   const lv = levelOf(state.profile.points);
   const pct = lv.next ? ((state.profile.points - lv.from) / (lv.next - lv.from)) * 100 : 100;
-  const rotation = diffDays(today, state.profile.startDate);
   const plan = planFor(state.profile, today);
-  const menu = goalMenu(rotation, plan.stretchDay);
+  const menu = goalMenu(today, plan.stage);
   const checkDue = !state.checks.some((c) => c.date.slice(0, 7) === monthKey(new Date(`${today}T12:00:00`)));
   const ticketUsable = state.profile.tickets > 0 && !state.days[addDays(today, -1)];
   const rescue = !dismissed && canRescueYesterday(state, today);
@@ -118,6 +117,7 @@ export function Home({ state, update, today, go }: ScreenProps) {
           <b>今日のメニュー</b>
           <span className="pill">{plan.label}</span>
         </div>
+        <div className="muted" style={{ marginBottom: 4 }}>今日のテーマ：{dayTheme(today)}</div>
         <ol className="menu">
           {menu.map((e) => (
             <li key={e.id} className={e.category === 'stretch' ? 'stretch' : ''}>
@@ -126,7 +126,7 @@ export function Home({ state, update, today, go }: ScreenProps) {
             </li>
           ))}
         </ol>
-        {plan.recovery && <div className="muted" style={{ marginTop: 6 }}>今週は回復週。量を少し減らして、体を休めながら続けます。{plan.stretchDay ? '今日はストレッチ多めの日です。' : ''}</div>}
+        {plan.recovery && <div className="muted" style={{ marginTop: 6 }}>今週は回復週。量を少し減らして、体を休めながら続けます。</div>}
       </div>
 
       <button className="accent big" onClick={() => go({ name: 'train', menu: menu.map((e) => e.id), line: 'goal' })}>

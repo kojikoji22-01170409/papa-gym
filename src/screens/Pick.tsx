@@ -1,12 +1,11 @@
 import type { ScreenProps } from '../App';
 import { CATEGORY_LABEL, EXERCISES, gifUrl, minimumPick, setLabel, type Category } from '../lib/exercises';
 import { amountFor, planFor } from '../lib/plan';
-import { diffDays } from '../lib/dates';
 
 const ORDER: Category[] = ['lower', 'upper', 'core', 'stretch', 'family'];
 
 export function Pick({ state, today, go }: ScreenProps) {
-  const rec = minimumPick(diffDays(today, state.profile.startDate));
+  const rec = minimumPick(today, planFor(state.profile, today).stage);
   const light = planFor(state.profile, today, true);
   const start = (id: string) => go({ name: 'train', menu: [id], line: 'min' });
   return (

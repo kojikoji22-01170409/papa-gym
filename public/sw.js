@@ -1,9 +1,9 @@
 // Offline support: network-first for pages (so updates arrive), cache fallback when offline,
 // stale-while-revalidate for hashed assets.
-const CACHE = 'papa-gym-v4';
+const CACHE = 'papa-gym-v5';
 const SCOPE = self.registration.scope;
 // Keep in sync with the exercise ids in src/lib/exercises.ts (checked by a test).
-const GIFS = ['squat', 'back-lunge', 'hip-lift', 'calf-raise', 'pushup', 'wall-pushup', 'chair-dip', 'superman', 'plank', 'side-plank', 'dead-bug', 'bird-dog', 'hamstring', 'hip-flexor', 'chest-shoulder', 'cat-cow', 'calf-stretch', 'glute-hug', 'childs-pose', 'scapula-stretch', 'forward-fold', 'thoracic-reach', 'carry-squat', 'kid-plank'];
+const GIFS = ['squat', 'back-lunge', 'hip-lift', 'calf-raise', 'pushup', 'wall-pushup', 'chair-dip', 'superman', 'plank', 'side-plank', 'dead-bug', 'bird-dog', 'hamstring', 'hip-flexor', 'chest-shoulder', 'cat-cow', 'calf-stretch', 'glute-hug', 'childs-pose', 'scapula-stretch', 'forward-fold', 'thoracic-reach', 'carry-squat', 'kid-plank', 'wide-squat', 'wall-sit', 'side-lunge', 'split-squat', 'single-hip-lift', 'good-morning', 'single-calf-raise', 'incline-pushup', 'wide-pushup', 'pike-pushup', 'shoulder-tap', 'towel-pulldown', 'snow-angel', 'prone-y', 'curl-up', 'mountain-climber', 'hollow-hold', 'reverse-crunch', 'single-leg-stand', 'single-leg-reach', 'clamshell', 'side-leg-raise', 'donkey-kick', 'quad-stretch', 'inner-thigh', 'side-bend', 'neck-stretch', 'triceps-stretch', 'rear-shoulder', 'figure-four', 'spinal-twist', 'cobra', 'arm-circle', 'leg-swing'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

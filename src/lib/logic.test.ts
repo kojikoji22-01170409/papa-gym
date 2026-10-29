@@ -3,7 +3,7 @@ import { addDays, ageOn, dayKey, fatherAgeWhenChildIs } from './dates';
 import { applyMonthlyTickets, canRescueYesterday, levelOf, streakOf, suggestAmount, unlockedFamilyRewards } from './rewards';
 import { completeSession, saveCheck, useTicket } from './actions';
 import { drawCards } from './cards';
-import { goalMenu } from './exercises';
+import { goalMenu, isStretchDay } from './exercises';
 import { newState } from './store';
 import type { ExerciseLog, State } from './types';
 import { byId } from './exercises';
@@ -112,23 +112,43 @@ describe('cards', () => {
 });
 
 describe('menu and auto-adjust', () => {
-  it('builds a 7-item menu: warm-up, 3 strength, 3 stretches', () => {
-    for (let n = 0; n < 30; n++) {
-      const m = goalMenu(n);
-      expect(m).toHaveLength(7);
-      expect(m[0].warmup).toBe(true);
-      expect(m.filter((e) => e.category === 'stretch' && !e.warmup)).toHaveLength(3);
-      expect(m.filter((e) => ['lower', 'upper', 'core'].includes(e.category))).toHaveLength(3);
-      expect(new Set(m.map((e) => e.id)).size).toBe(7);
+  const dates = Array.from({ length: 120 }, (_, i) => addDays('2026-10-26', i)); // starts on a Monday
+  it('builds a 7-item menu every day: warm-up, strength, stretches', () => {
+    for (const d of dates) {
+      for (const stage of [0, 2, 4]) {
+        const m = goalMenu(d, stage);
+        const sunday = isStretchDay(d);
+        expect(m, d).toHaveLength(7);
+        expect(m[0].warmup).toBe(true);
+        expect(m.filter((e) => e.category === 'stretch' && !e.warmup), d).toHaveLength(sunday ? 5 : 3);
+        expect(m.filter((e) => e.category !== 'stretch'), d).toHaveLength(sunday ? 1 : 3);
+        expect(new Set(m.map((e) => e.id)).size, d).toBe(7);
+      }
     }
   });
-  it('stretch days have a warm-up, 1 strength and 5 distinct stretches', () => {
-    for (let n = 0; n < 30; n++) {
-      const m = goalMenu(n, true);
-      expect(m).toHaveLength(7);
-      expect(m.filter((e) => e.category === 'stretch' && !e.warmup)).toHaveLength(5);
-      expect(new Set(m.map((e) => e.id)).size).toBe(7);
-    }
+  it('covers every body area at least twice a week and rests 48 h between the same themes', () => {
+    const week = dates.slice(0, 7);
+    const strength = week.flatMap((d) => goalMenu(d, 2).filter((e) => e.category !== 'stretch').map((e) => e.muscles));
+    expect(strength.filter((m) => /太もも|お尻/.test(m)).length).toBeGreaterThanOrEqual(2);
+    expect(strength.filter((m) => /胸|肩/.test(m)).length).toBeGreaterThanOrEqual(2);
+    expect(strength.filter((m) => /背中|肩甲骨/.test(m)).length).toBeGreaterThanOrEqual(2);
+    expect(strength.filter((m) => /おなか|わき腹/.test(m)).length).toBeGreaterThanOrEqual(2);
+  });
+  it('changes the exercises from week to week and is stable within a day', () => {
+    const mon = dates.filter((d) => new Date(`${d}T12:00:00`).getDay() === 1);
+    const sets = new Set(mon.map((d) => goalMenu(d, 2).map((e) => e.id).join()));
+    expect(sets.size).toBeGreaterThanOrEqual(10);
+    expect(goalMenu('2026-10-26', 2)).toEqual(goalMenu('2026-10-26', 2));
+  });
+  it('shows harder exercises only at higher stages', () => {
+    const ids = (stage: number) => new Set(dates.flatMap((d) => goalMenu(d, stage).map((e) => e.id)));
+    expect(ids(0).has('wide-pushup')).toBe(false);
+    expect(ids(4).has('wide-pushup')).toBe(true);
+  });
+  it('uses every exercise in the weekday menus at some stage', () => {
+    const used = new Set(dates.flatMap((d) => [0, 2, 4].flatMap((st) => goalMenu(d, st).map((e) => e.id))));
+    const missing = EXERCISES.filter((e) => e.category !== 'family' && !used.has(e.id)).map((e) => e.id);
+    expect(missing).toEqual([]);
   });
   it('every exercise has steps and a benefit', () => {
     for (const e of EXERCISES) {
