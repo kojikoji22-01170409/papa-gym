@@ -101,6 +101,11 @@ export function Train({ state, update, today, go, menu, line }: ScreenProps & { 
       </div>
       <div className="card">
         <img className="gif" src={gifUrl(ex.id)} alt={`${ex.name}の動き`} />
+        <div className="legend">
+          <span><i className={ex.category === 'stretch' ? 'dot stretch' : 'dot work'} />{ex.category === 'stretch' ? '伸びる場所' : '効く場所'}</span>
+          <span><i className="dot arrow" />動かす向き</span>
+          <span><i className="dot ghost" />スタートの形</span>
+        </div>
         <h1>{ex.name}</h1>
         <div className="amount">{setLabel(ex, amount)}</div>
         <span className="pill">{ex.category === 'stretch' ? '伸ばす場所' : '効く場所'}：{ex.muscles}</span>

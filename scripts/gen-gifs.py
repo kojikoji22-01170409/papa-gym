@@ -715,43 +715,147 @@ EXERCISES.update(NEW)
 
 
 # ---------------------------------------------------------------- render
-def draw(J):
+WORK, STRETCH = (255, 84, 64), (30, 190, 180)
+
+# Where it works (red glow) or what it stretches (teal glow): tokens drawn under the figure.
+FOCUS = {
+    'squat': ('work', 'thigh glute'), 'wide-squat': ('work', 'thigh glute'), 'wall-sit': ('work', 'thigh'),
+    'side-lunge': ('work', 'thigh glute'), 'split-squat': ('work', 'thigh glute'), 'back-lunge': ('work', 'thigh glute'),
+    'hip-lift': ('work', 'glute'), 'single-hip-lift': ('work', 'glute'), 'good-morning': ('work', 'glute back'),
+    'calf-raise': ('work', 'calf'), 'single-calf-raise': ('work', 'calf'),
+    'pushup': ('work', 'chest arm'), 'wide-pushup': ('work', 'chest arm'), 'incline-pushup': ('work', 'chest arm'),
+    'wall-pushup': ('work', 'chest arm'), 'chair-dip': ('work', 'arm'), 'pike-pushup': ('work', 'shoulder arm'),
+    'shoulder-tap': ('work', 'shoulder core'), 'superman': ('work', 'back glute'), 'towel-pulldown': ('work', 'back'),
+    'snow-angel': ('work', 'back shoulder'), 'prone-y': ('work', 'back shoulder'),
+    'plank': ('work', 'core'), 'side-plank': ('work', 'core'), 'dead-bug': ('work', 'core'), 'bird-dog': ('work', 'core back'),
+    'curl-up': ('work', 'core'), 'mountain-climber': ('work', 'core'), 'hollow-hold': ('work', 'core'), 'reverse-crunch': ('work', 'core'),
+    'single-leg-stand': ('work', 'thigh glute'), 'single-leg-reach': ('work', 'glute thigh'), 'clamshell': ('work', 'glute'),
+    'side-leg-raise': ('work', 'glute'), 'donkey-kick': ('work', 'glute'), 'carry-squat': ('work', 'thigh glute'), 'kid-plank': ('work', 'core'),
+    'cat-cow': ('stretch', 'back'), 'hamstring': ('stretch', 'thigh'), 'hip-flexor': ('stretch', 'hipfront'), 'chest-shoulder': ('stretch', 'chest'),
+    'calf-stretch': ('stretch', 'calf'), 'glute-hug': ('stretch', 'glute'), 'childs-pose': ('stretch', 'back'),
+    'scapula-stretch': ('stretch', 'back'), 'forward-fold': ('stretch', 'back thigh'), 'thoracic-reach': ('stretch', 'back'),
+    'quad-stretch': ('stretch', 'thigh'), 'inner-thigh': ('stretch', 'thigh'), 'side-bend': ('stretch', 'core'),
+    'neck-stretch': ('stretch', 'neck'), 'triceps-stretch': ('stretch', 'arm'), 'rear-shoulder': ('stretch', 'shoulder'),
+    'figure-four': ('stretch', 'glute'), 'spinal-twist': ('stretch', 'back'), 'cobra': ('stretch', 'core'),
+    'arm-circle': ('stretch', 'shoulder'), 'leg-swing': ('stretch', 'thigh'),
+}
+MOVERS = ('hip', 'sh', 'hand', 'hand2', 'foot', 'foot2', 'knee', 'knee2')
+
+
+def blend(c, bg, a): return tuple(int(c[i] * a + bg[i] * (1 - a)) for i in range(3))
+
+
+def glow(ov, s, J, kind, tokens):
+    col = (WORK if kind == 'work' else STRETCH) + (120,)
+    od = ImageDraw.Draw(ov)
+
+    def seg(p, q, w):
+        od.line([s(p), s(q)], fill=col, width=int(w * SS))
+        r = w * SS / 2
+        for c in (p, q):
+            od.ellipse([c[0] * SS - r, c[1] * SS - r, c[0] * SS + r, c[1] * SS + r], fill=col)
+
+    def dot(c, r):
+        od.ellipse([c[0] * SS - r * SS, c[1] * SS - r * SS, c[0] * SS + r * SS, c[1] * SS + r * SS], fill=col)
+
+    torso = (J['hip'], J['mid'], J['sh']) if J['mid'] else (J['hip'], J['sh'])
+    for tk in tokens.split():
+        if tk == 'thigh':
+            for n in ('', '2'): seg(J['hip'], J['knee' + n], 34)
+        elif tk == 'calf':
+            for n in ('', '2'): seg(lerp2(J['knee' + n], J['foot' + n], 0.25), J['foot' + n], 30)
+        elif tk == 'glute': dot(J['hip'], 28)
+        elif tk == 'hipfront': dot(J['hip'], 30)
+        elif tk == 'back':
+            for a, b2 in zip(torso, torso[1:]): seg(a, b2, 38)
+        elif tk == 'core': seg(lerp2(torso[0], torso[-1], 0.15), lerp2(torso[0], torso[-1], 0.7), 40)
+        elif tk == 'chest': dot(lerp2(J['sh'], J['hip'], 0.18), 26)
+        elif tk == 'shoulder':
+            dot(J['sh'], 26)
+        elif tk == 'arm':
+            for n in ('', '2'): seg(J['sh'], J['el' + n], 28); seg(J['el' + n], J['hand' + n], 26)
+        elif tk == 'neck': seg(J['head'], J['sh'], 30)
+
+
+def draw(J, ghost=None, focus=None, arrow=None):
     img = Image.new('RGB', (W * SS, H * SS), BG)
     d = ImageDraw.Draw(img)
     s = lambda p: (p[0] * SS, p[1] * SS)
 
-    def bone(p, q, col, w=11):
-        d.line([s(p), s(q)], fill=col, width=int(w * SS))
-        r = w * SS / 2
-        for c in (p, q):
-            d.ellipse([c[0] * SS - r, c[1] * SS - r, c[0] * SS + r, c[1] * SS + r], fill=col)
+    def drawer(dd, J_, cols, thick=1.0, with_head=True):
+        NEARC, FARC, SHIRTC, SKINC = cols
+
+        def bone(p, q, col, w=11):
+            w = w * thick
+            dd.line([s(p), s(q)], fill=col, width=int(w * SS))
+            r = w * SS / 2
+            for c in (p, q):
+                dd.ellipse([c[0] * SS - r, c[1] * SS - r, c[0] * SS + r, c[1] * SS + r], fill=col)
+
+        bone(J_['hip'], J_['knee2'], FARC, 13); bone(J_['knee2'], J_['foot2'], FARC, 12)
+        if J_['toe2']: bone(J_['foot2'], add(J_['foot2'], J_['toe2']), FARC, 9)
+        bone(J_['sh'], J_['el2'], FARC, 10); bone(J_['el2'], J_['hand2'], FARC, 9)
+        if J_['mid']:
+            bone(J_['hip'], J_['mid'], SHIRTC, 24); bone(J_['mid'], J_['sh'], SHIRTC, 24)
+        else:
+            bone(J_['hip'], J_['sh'], SHIRTC, 24)
+        bone(J_['hip'], J_['knee'], NEARC, 14); bone(J_['knee'], J_['foot'], NEARC, 13)
+        if J_['toe']: bone(J_['foot'], add(J_['foot'], J_['toe']), NEARC, 10)
+        bone(J_['sh'], J_['el'], NEARC, 11); bone(J_['el'], J_['hand'], NEARC, 10)
+        for hnd in ('hand', 'hand2'):
+            c = J_[hnd]; r = 6.5 * SS * thick
+            dd.ellipse([c[0] * SS - r, c[1] * SS - r, c[0] * SS + r, c[1] * SS + r], fill=SKINC if hnd == 'hand' else blend(SKINC, BG, .7))
+        hc, r = J_['head'], HEAD * 1.1
+        dd.ellipse([s((hc[0] - r, hc[1] - r)), s((hc[0] + r, hc[1] + r))], fill=SKINC, outline=NEARC, width=2 * SS)
+        # a small eye and nose show which way the face points
+        dd.ellipse([s((hc[0] + 3, hc[1] - 4)), s((hc[0] + 7, hc[1]))], fill=NEARC)
 
     d.line([s((20, GY + 6)), s((W - 20, GY + 6))], fill=GROUND, width=4 * SS)
-    for f in J['back']: f(d, s, bone)
-    bone(J['hip'], J['knee2'], FAR); bone(J['knee2'], J['foot2'], FAR)
-    if J['toe2']: bone(J['foot2'], add(J['foot2'], J['toe2']), FAR, 8)
-    bone(J['sh'], J['el2'], FAR, 9); bone(J['el2'], J['hand2'], FAR, 9)
-    if J['mid']:
-        bone(J['hip'], J['mid'], SHIRT, 18); bone(J['mid'], J['sh'], SHIRT, 18)
-    else:
-        bone(J['hip'], J['sh'], SHIRT, 18)
-    bone(J['hip'], J['knee'], NEAR); bone(J['knee'], J['foot'], NEAR)
-    if J['toe']: bone(J['foot'], add(J['foot'], J['toe']), NEAR, 8)
-    bone(J['sh'], J['el'], NEAR, 9); bone(J['el'], J['hand'], NEAR, 9)
-    hc, r = J['head'], HEAD
-    d.ellipse([s((hc[0] - r, hc[1] - r)), s((hc[0] + r, hc[1] + r))], fill=SKIN, outline=NEAR, width=2 * SS)
-    for f in J['front']: f(d, s, bone)
+    for f in J['back']: f(d, s, None)
+    if ghost is not None:
+        pale = tuple(blend(c, BG, .28) for c in (NEAR, FAR, SHIRT, SKIN))
+        drawer(d, ghost, pale)
+    if focus:
+        ov = Image.new('RGBA', img.size, (0, 0, 0, 0))
+        glow(ov, s, J, focus[0], focus[1])
+        img = Image.alpha_composite(img.convert('RGBA'), ov).convert('RGB')
+        d = ImageDraw.Draw(img)
+    drawer(d, J, (NEAR, FAR, SHIRT, SKIN))
+    if arrow:
+        p, q = arrow
+        dx, dy = q[0] - p[0], q[1] - p[1]
+        n = math.hypot(dx, dy)
+        ux, uy = dx / n, dy / n
+        col = (255, 138, 61)
+        steps = max(2, int(n // 14))
+        for i in range(steps):
+            a0, a1 = i / steps, (i + 0.55) / steps
+            d.line([s((p[0] + dx * a0, p[1] + dy * a0)), s((p[0] + dx * a1, p[1] + dy * a1))], fill=col, width=4 * SS)
+        hx, hy = q
+        d.polygon([s((hx, hy)), s((hx - 14 * ux + 7 * uy, hy - 14 * uy - 7 * ux)), s((hx - 14 * ux - 7 * uy, hy - 14 * uy + 7 * ux))], fill=col)
+    for f in J['front']: f(d, s, None)
     return img.resize((W, H), Image.LANCZOS)
+
+
+def arrow_of(fn, hold_name):
+    """Dotted arrow for the main movement: hip, then shoulder, then whichever limb moves most."""
+    a, b = fn(0), fn(1)
+    dist = lambda k: math.hypot(b[k][0] - a[k][0], b[k][1] - a[k][1]) if a.get(k) and b.get(k) else 0
+    for k in ('hip', 'sh'):
+        if dist(k) >= 22: return (a[k], b[k])
+    best = max(MOVERS, key=dist)
+    return (a[best], b[best]) if dist(best) >= 22 else None
 
 
 def render(name, fn, hold, outdir):
     n = 16
+    ghost, arrow, focus = fn(0), arrow_of(fn, name), FOCUS.get(name)
     seq = [i / n for i in range(n + 1)] + [1 - i / n for i in range(1, n)]
-    frames = [draw(fn(t)) for t in seq]
+    frames = [draw(fn(t), ghost, focus, arrow) for t in seq]
     durs = [70] * len(frames)
     durs[0] = 350
     durs[n] = 500 if hold == 1 else 1200
-    pal = [f.convert('P', palette=Image.ADAPTIVE, colors=24) for f in frames]
+    pal = [f.convert('P', palette=Image.ADAPTIVE, colors=36) for f in frames]
     path = os.path.join(outdir, f'{name}.gif')
     pal[0].save(path, save_all=True, append_images=pal[1:], duration=durs, loop=0, optimize=True, disposal=1)
     return frames[0], frames[n], path
