@@ -861,6 +861,139 @@ def render(name, fn, hold, outdir):
     return frames[0], frames[n], path
 
 
+# ---------------------------------------------------------------- poses (menu v4: general exercises)
+def crunch(t):
+    k = ease(t)
+    hip = (180, GY - 12)
+    phi = math.radians(lerp(0, 42, k))
+    sh = (hip[0] - TO * math.cos(phi), hip[1] - TO * math.sin(phi))
+    head = (sh[0] - (NECK + HEAD) * math.cos(phi) - 2, sh[1] - (NECK + HEAD) * math.sin(phi) - 6)
+    knee = (hip[0] + 44, GY - 62)
+    hand = (head[0] + 14, head[1] + 12)
+    return build(hip, sh, head, [((hip[0] + 84, GY - 8), None), ((hip[0] + 90, GY - 6), None)], [hand, (hand[0] + 4, hand[1] - 2)],
+                 kb=(-1, -1), eb=(1, 1), knees=(knee, (knee[0] + 2, knee[1])))
+
+
+def bicycle_crunch(t):
+    k = ease(t)
+    hip = (180, GY - 12)
+    phi = math.radians(30)
+    sh = (hip[0] - TO * math.cos(phi), hip[1] - TO * math.sin(phi))
+    head = (sh[0] - (NECK + HEAD) * math.cos(phi) - 2, sh[1] - (NECK + HEAD) * math.sin(phi) - 6)
+    knee_in = (hip[0] + 30, GY - 86)
+    foot_in = (knee_in[0] + 34, knee_in[1] + 26)
+    knee_out = (hip[0] + 78, GY - 62)
+    foot_out = (hip[0] + 150, GY - 80)
+    f1, k1 = lerp2(foot_out, foot_in, k), lerp2(knee_out, knee_in, k)
+    f2, k2 = lerp2(foot_in, foot_out, k), lerp2(knee_in, knee_out, k)
+    hand = (head[0] + 12, head[1] + 10)
+    return build(hip, sh, head, [(f1, None), (f2, None)], [hand, (hand[0] + 4, hand[1] - 2)], kb=(-1, -1), eb=(1, 1), knees=(k1, k2))
+
+
+def leg_raise(t):
+    k = ease(t)
+    shp = (80, GY - 12)
+    hip = (shp[0] + TO, GY - 12)
+    head = (shp[0] - (NECK + HEAD), shp[1])
+    a = math.radians(lerp(8, 88, k))
+    ft = (hip[0] + REACH * math.cos(a), hip[1] - REACH * math.sin(a))
+    return build(hip, shp, head, [(ft, None), ((ft[0] - 3, ft[1] + 3), None)], [(shp[0] + 74, GY - 10)] * 2, kb=(-1, -1), eb=(-1, -1))
+
+
+def front_lunge(t):
+    k = ease(t)
+    hip = (lerp(150, 176, k), lerp(GY - 116, GY - 70, k))
+    sh = add(hip, v(0, TO))
+    front = (lerp(150, 236, k), GY)
+    rear = (lerp(150, 100, k), lerp(GY, GY - 12, k))
+    return build(hip, sh, head_of(sh, 0), [foot(front[0]), (rear, (14, 16) if k > 0.5 else TOE)], [(sh[0] + 20, sh[1] + 50)] * 2, kb=(-1, -1),
+                 knees=(None, (hip[0] - 20 * k, GY - 6 - 10 * (1 - k) - 30 * (1 - k))))
+
+
+def step_up(t):
+    k = ease(t)
+    box = lambda d, s, bone: d.rectangle([s((190, GY - 62)), s((290, GY + 4))], fill=PROP)
+    hip = (lerp(170, 238, k), lerp(GY - 116, GY - 62 - 116, k))
+    sh = add(hip, v(2, TO))
+    foot_on = (lerp(230, 238, k), GY - 62)
+    other = (lerp(150, 238, k), lerp(GY, GY - 62 - 38 * (1 - k), k)) if k < 1 else (238, GY - 62)
+    other = (lerp(150, 248, k), lerp(GY, GY - 62 - 18 * (1 - k), k))
+    return build(hip, sh, head_of(sh, 2), [foot(foot_on[0], foot_on[1]), (other, None)], [(sh[0] + 20, sh[1] + 50)] * 2, kb=(-1, -1), back=(box,))
+
+
+def diamond_pushup(t):
+    p = pushup(t)
+    p['hand'] = (232, GY)
+    p['hand2'] = (228, GY)
+    p['el'] = ik(p['sh'], p['hand'], UA, FA, -1)
+    p['el2'] = ik(p['sh'], p['hand2'], UA, FA, -1)
+    return p
+
+
+def jumping_jack(t):
+    k = ease(t)
+    hip = (176, lerp(GY - 116, GY - 120, k))
+    sh = add(hip, v(0, TO))
+    hands = [arm_to(sh, lerp(172, 20, k), 70), arm_to(sh, lerp(172, 10, k), 70)]
+    return build(hip, sh, head_of(sh, 0), [foot(lerp(176, 232, k)), foot(lerp(172, 124, k))], hands, kb=(-1, -1), eb=(1, 1))
+
+
+def high_knees(t):
+    k = math.sin(math.pi * t)
+    hip = (176, GY - 116)
+    sh = add(hip, v(0, TO))
+    knee2 = (hip[0] + T * 0.9, hip[1] - 4 + 10 * (1 - k))
+    foot2 = (knee2[0] - 4, knee2[1] + S_ - 8)
+    hands = [(sh[0] + 30, sh[1] + 40), (sh[0] - 10, sh[1] + 40)]
+    return build(hip, sh, head_of(sh, 0), [foot(176), (lerp2((170, GY), foot2, k), None)], hands, knees=(None, lerp2((hip[0] + 6, hip[1] + T), knee2, k)), eb=(1, 1))
+
+
+def long_seat_fold(t):
+    k = ease(t)
+    hip = (95, GY - 8)
+    lean = lerp(-4, 52, k)
+    sh = add(hip, v(lean, TO))
+    ank = (213, GY - 8)
+    hand = lerp2(add(sh, (30, 40)), (ank[0] - 6, GY - 16), k)
+    return build(hip, sh, add(sh, v(lean + 6, NECK + HEAD)), [(ank, None), ((ank[0] - 4, ank[1]), None)], [hand, (hand[0] - 4, hand[1])],
+                 kb=(1, 1), eb=(-1, -1), knees=((150, GY - 10), (146, GY - 8)))
+
+
+def deep_squat_stretch(t):
+    k = ease(t)
+    hip = (lerp(176, 144, k), lerp(GY - 116, GY - 40, k))
+    lean = lerp(0, 30, k)
+    sh = add(hip, v(lean, TO))
+    knee = (hip[0] + 40, GY - 70)
+    hands = [(knee[0] - 10, knee[1] + 8)] * 2 if k > 0.6 else [add(sh, (30, 30))] * 2
+    return build(hip, sh, head_of(sh, lean), [foot(190), foot(184)], hands, kb=(-1, -1), eb=(1, 1))
+
+
+def russian_twist(t):
+    k = ease(t)
+    hip = (150, GY - 8)
+    lean = -26
+    sh = add(hip, v(lean, TO))
+    a = math.radians(38)
+    ft = (hip[0] + REACH * 0.92 * math.cos(a), hip[1] - REACH * 0.92 * math.sin(a))
+    hand = (sh[0] + lerp(30, 66, k), sh[1] + lerp(36, 52, k))
+    return build(hip, sh, add(sh, v(lean + 4, NECK + HEAD)), [(ft, None), ((ft[0] - 3, ft[1] + 3), None)], [hand, (hand[0] - 4, hand[1] - 3)], kb=(-1, -1), eb=(1, 1))
+
+
+NEW2 = {
+    'crunch': (crunch, 1), 'bicycle-crunch': (bicycle_crunch, 1), 'leg-raise': (leg_raise, 1), 'front-lunge': (front_lunge, 1),
+    'step-up': (step_up, 1), 'diamond-pushup': (diamond_pushup, 1), 'jumping-jack': (jumping_jack, 1), 'high-knees': (high_knees, 1),
+    'long-seat-fold': (long_seat_fold, 2), 'deep-squat-stretch': (deep_squat_stretch, 2), 'russian-twist': (russian_twist, 1),
+}
+EXERCISES.update(NEW2)
+FOCUS.update({
+    'crunch': ('work', 'core'), 'bicycle-crunch': ('work', 'core'), 'leg-raise': ('work', 'core'), 'front-lunge': ('work', 'thigh glute'),
+    'step-up': ('work', 'thigh glute'), 'diamond-pushup': ('work', 'arm chest'), 'jumping-jack': ('work', 'thigh shoulder'),
+    'high-knees': ('work', 'thigh'), 'long-seat-fold': ('stretch', 'thigh back'), 'deep-squat-stretch': ('stretch', 'hipfront glute'),
+    'russian-twist': ('work', 'core'),
+})
+
+
 if __name__ == '__main__':
     out = os.path.join(os.path.dirname(__file__), '..', 'public', 'gifs')
     os.makedirs(out, exist_ok=True)

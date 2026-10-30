@@ -126,13 +126,27 @@ describe('menu and auto-adjust', () => {
       }
     }
   });
-  it('covers every body area at least twice a week and rests 48 h between the same themes', () => {
+  it('covers every body area at least twice a week', () => {
     const week = dates.slice(0, 7);
     const strength = week.flatMap((d) => goalMenu(d, 2).filter((e) => e.category !== 'stretch').map((e) => e.muscles));
     expect(strength.filter((m) => /太もも|お尻/.test(m)).length).toBeGreaterThanOrEqual(2);
     expect(strength.filter((m) => /胸|肩/.test(m)).length).toBeGreaterThanOrEqual(2);
     expect(strength.filter((m) => /背中|肩甲骨/.test(m)).length).toBeGreaterThanOrEqual(2);
     expect(strength.filter((m) => /おなか|わき腹/.test(m)).length).toBeGreaterThanOrEqual(2);
+  });
+  it('puts squat, push-up and plank in at least 3 days a week, and a forward bend and a hip stretch in every day', () => {
+    for (let w = 0; w < 12; w++) {
+      const week = dates.slice(w * 7, w * 7 + 7);
+      const menus = week.map((d) => goalMenu(d, 2).map((e) => e.id));
+      for (const id of ['squat', 'pushup', 'plank']) expect(menus.filter((m) => m.includes(id)).length, `${id} week ${w}`).toBeGreaterThanOrEqual(3);
+      expect(menus.every((m) => m.some((id) => ['forward-fold', 'long-seat-fold', 'hamstring'].includes(id))), `fold week ${w}`).toBe(true);
+      expect(menus.every((m) => m.some((id) => ['hip-flexor', 'deep-squat-stretch', 'inner-thigh'].includes(id))), `hip week ${w}`).toBe(true);
+    }
+  });
+  it('shows the plain forward bend and hip stretch most often', () => {
+    const all = dates.flatMap((d) => goalMenu(d, 2).map((e) => e.id));
+    expect(all.filter((id) => id === 'forward-fold').length).toBeGreaterThan(all.filter((id) => id === 'long-seat-fold').length);
+    expect(all.filter((id) => id === 'hip-flexor').length).toBeGreaterThan(all.filter((id) => id === 'inner-thigh').length);
   });
   it('changes the exercises from week to week and is stable within a day', () => {
     const mon = dates.filter((d) => new Date(`${d}T12:00:00`).getDay() === 1);

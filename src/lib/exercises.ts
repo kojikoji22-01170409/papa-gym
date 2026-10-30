@@ -292,6 +292,61 @@ export const EXERCISES: Exercise[] = [
     muscles: '股関節・太もも裏・太もも前',
     steps: ['壁や柱に片手を添えて、横向きに立つ。', '背すじを伸ばしたまま、外側の脚をまっすぐ前後に振る。', '反動を使いすぎず、振り幅は気持ちよく動く範囲にする。', '回数が終わったら、向きを替えて反対の脚も行う。'],
     benefit: '股関節まわりを動かして温めます。脚を使うトレーニングの前の準備運動に向いていて、動きの滑らかさが上がります。' },
+  // ---- 定番の種目（追加）
+  { id: 'crunch', name: 'クランチ（腹筋）', category: 'core', unit: 'reps', amount: 12, sets: 1,
+    muscles: 'おなか（腹筋）',
+    steps: ['仰向けに寝て、膝を立てる。両手は耳の横に軽く添える（頭を引っぱらない）。', 'おへそをのぞき込むように、頭と肩甲骨が浮くところまで上体を丸める。', '1秒止めてから、ゆっくり戻す（背中全部は起こさない）。', '息を吐きながら起こし、吸いながら戻す。'],
+    benefit: '定番の腹筋運動です。腰への負担が少なく、おなかの前側の筋肉をしっかり使います。姿勢を保つ力と、起き上がる動作の楽さにつながります。',
+    easy: '腕を胸の前で組み、浅く起こす。', hard: '起こしたところで3秒止める。' },
+  { id: 'bicycle-crunch', name: 'バイシクルクランチ', category: 'core', unit: 'reps', amount: 10, sets: 1,
+    muscles: 'おなか・わき腹',
+    steps: ['仰向けに寝て、両手を耳の横に添え、脚を床から浮かせる。', '上体をひねりながら、片方のひじと反対の膝を近づける。', '同時に、反対の脚はまっすぐ伸ばす。', '自転車をこぐように、左右ゆっくり交互に行う（左右で1回）。'],
+    benefit: 'おなかの前とわき腹を一緒に鍛える定番種目です。ひねる力がつき、体を回す動き（ゴルフ、子どもを抱えて向きを変えるなど）が楽になります。',
+    easy: '足を床につけたまま、ひじと膝を近づける。', hard: 'ひとつひとつの動きを2秒かけて行う。' },
+  { id: 'leg-raise', name: 'レッグレイズ', category: 'core', unit: 'reps', amount: 10, sets: 1,
+    muscles: 'おなかの下の方・脚のつけ根',
+    steps: ['仰向けに寝て、両手を体の横（またはお尻の下）に置く。', '脚をそろえて、膝を軽くゆるめたまま、床と垂直になるまで持ち上げる。', '腰が反らないよう、おなかに力を入れてゆっくり下ろす。', '床に着く手前で止めて、また持ち上げる。'],
+    benefit: 'おなかの下の方を鍛える定番種目です。腰を反らさず脚をコントロールする力がつき、体幹の安定につながります。腰が痛いときは膝を曲げて行います。',
+    easy: '膝を曲げて行う。', hard: '下ろすのに4秒かける。' },
+  { id: 'front-lunge', name: 'フロントランジ', category: 'lower', unit: 'reps', amount: 8, sets: 1, perSide: true,
+    muscles: '太もも・お尻',
+    steps: ['足を腰幅にそろえて立つ。', '片足を大きく前に踏み出し、上体を起こしたまま腰を落とす（前の膝は90度くらい）。', '前の足で床を押して、元の位置に戻る。', '回数が終わったら、反対の足でも行う。'],
+    benefit: '日本整形外科学会のロコトレでも紹介されている定番の脚トレです。太ももとお尻を使い、歩く・階段を上る力につながります。',
+    easy: '浅めに行い、壁や椅子に手を添える。', hard: '戻るときに片足で1秒止まる。' },
+  { id: 'step-up', name: 'ステップアップ（台）', category: 'lower', unit: 'reps', amount: 10, sets: 1, perSide: true,
+    muscles: '太もも・お尻',
+    steps: ['安定した低い台（階段の1段や、ぐらつかない踏み台）の前に立つ。', '片足を台にのせ、その足で床を押して体を持ち上げる。', '台の上でまっすぐ立ったら、反対の足はゆっくり下ろす。', '回数が終わったら、足を替える。'],
+    benefit: '階段を上る動作そのものを鍛える定番種目です。片脚ずつ使うので、左右の差が整い、バランス力もつきます。台は必ず安定したものを使ってください。',
+    easy: '低い台で行い、手すりや壁に手を添える。', hard: '上で片脚立ちを1秒止める。' },
+  { id: 'diamond-pushup', name: 'ダイヤモンド腕立て伏せ', category: 'upper', unit: 'reps', amount: 6, sets: 1,
+    muscles: '腕の裏・胸',
+    steps: ['両手の親指と人さし指で、胸の下にひし形を作って床につく。', '頭からかかとまで一直線にする。', 'ひじを体に沿わせて曲げ、胸をひし形に近づける。', '押し戻して元に戻る。つらいときは膝をつく。'],
+    benefit: '手を近づけることで、腕の裏（上腕三頭筋）に強く効く定番の腕立て伏せです。押す力が上がり、子どもを抱き上げる動作が安定します。',
+    easy: '膝をついて行う。', hard: '下ろすのに3秒かける。' },
+  { id: 'jumping-jack', name: 'ジャンピングジャック（準備運動）', category: 'stretch', unit: 'reps', amount: 20, sets: 1, warmup: true,
+    muscles: '全身',
+    steps: ['足をそろえて立ち、両腕を体の横に下ろす。', '軽くジャンプして足を横に開き、同時に両腕を頭の上まで上げる。', 'もう一度ジャンプして、元の姿勢に戻る。', '着地は静かに、膝をやわらかく使う。膝や腰が気になるときは、ジャンプなしで足を横に出す。'],
+    benefit: '全身を使って体温と心拍数を上げる定番の準備運動です。筋トレの前に血のめぐりが上がり、動きがなめらかになります。',
+    easy: 'ジャンプせず、足を片方ずつ横に出す。' },
+  { id: 'high-knees', name: 'もも上げ（準備運動）', category: 'stretch', unit: 'reps', amount: 20, sets: 1, warmup: true,
+    muscles: '脚のつけ根・太もも・体幹',
+    steps: ['背すじを伸ばして立つ。', 'その場で、膝が腰の高さに近づくくらいまで、片方ずつ膝を持ち上げる。', '腕は走るときのように、前後に振る。', 'リズムよく、その場で行う（足音は静かに）。'],
+    benefit: '脚のつけ根と太ももを温め、心拍数を上げます。ランニングや脚トレの前の定番の準備運動です。',
+    easy: '膝を低めに上げて、ゆっくり行う。' },
+  { id: 'long-seat-fold', name: '長座体前屈（太もも裏・背中）', category: 'stretch', unit: 'sec', amount: 30, sets: 1, target: 'lower',
+    muscles: '太もも裏・ふくらはぎ・背中',
+    steps: ['床に座り、両脚をそろえて前に伸ばす。', '背すじを伸ばして、つま先を天井に向ける。', '息を吐きながら、おへそから前に倒れる（背中は丸めすぎない）。', '手が届くところ（すね・足首・つま先）でキープして、30秒呼吸する。'],
+    benefit: '体の裏側の硬さを調べる定番の前屈です。太もも裏と背中をゆるめ、腰痛の予防にも役立つとされています。毎日続けると届く距離が伸びていきます。' },
+  { id: 'deep-squat-stretch', name: '深くしゃがむストレッチ（股関節）', category: 'stretch', unit: 'sec', amount: 30, sets: 1, target: 'lower',
+    muscles: '股関節・内もも・お尻',
+    steps: ['足を肩幅より広めに開き、つま先を少し外に向けて立つ。', '背すじを伸ばしたまま、ゆっくり深くしゃがむ（かかとが浮くときはタオルを敷く）。', '胸の前で手を合わせ、ひじで膝を軽く外へ押し広げる。', '深く呼吸しながら、30秒キープする。膝が痛いときは浅めにする。'],
+    benefit: '股関節を深く動かして、内ももとお尻をゆるめます。しゃがむ・立つ動作が楽になり、座りっぱなしで固まった股関節をほぐします。',
+  },
+  { id: 'russian-twist', name: 'ロシアンツイスト', category: 'core', unit: 'reps', amount: 10, sets: 1,
+    muscles: 'わき腹・おなか',
+    steps: ['床に座り、膝を曲げて、上体を少し後ろに倒す（かかとは床についたままでよい）。', '両手を胸の前で組む。', '背すじを伸ばしたまま、上体を左右にひねって、手を体の横に動かす。', '左右ゆっくり交互に行う（左右で1回）。'],
+    benefit: 'わき腹とおなかのひねる筋肉を鍛える定番種目です。体をひねる動作が安定し、腰への負担が減ることが期待できます。',
+    easy: '手を胸の前で組んだまま、ひねる幅を小さくする。', hard: '足を床から浮かせて行う。' },
   // 子どもと一緒に（任意。参加は子どもの気分次第で、記録は本人のみ）
   { id: 'carry-squat', name: '抱っこスクワット', category: 'family', unit: 'reps', amount: 8, sets: 1,
     muscles: '太もも・お尻・体幹',
@@ -317,51 +372,49 @@ export const warmupExercise = (): Exercise => EXERCISES.find((e) => e.warmup)!;
  * exercises from easy to hard; the higher the stage, the more of the list is in play, and the
  * choice then moves on week by week so the same weekday does not repeat the same exercises.
  */
-interface DayTheme { title: string; warmup: string; strength: string[][]; stretch: string[][] }
+interface DayTheme { title: string; warmup: string[]; strength: string[][]; stretch: string[][] }
 
 const AREA: Record<string, string[]> = {
-  ham: ['hamstring', 'forward-fold'],
-  quad: ['quad-stretch'],
+  quad: ['quad-stretch', 'calf-stretch'],
   calf: ['calf-stretch'],
-  hip: ['hip-flexor', 'inner-thigh'],
   glute: ['glute-hug', 'figure-four'],
   chest: ['chest-shoulder'],
-  shoulder: ['scapula-stretch', 'rear-shoulder', 'triceps-stretch'],
-  neck: ['neck-stretch'],
-  back: ['childs-pose', 'thoracic-reach'],
+  shoulder: ['scapula-stretch', 'rear-shoulder', 'triceps-stretch', 'neck-stretch'],
+  back: ['childs-pose', 'thoracic-reach', 'cobra'],
   twist: ['spinal-twist', 'thoracic-reach'],
   side: ['side-bend'],
-  belly: ['cobra'],
+  // Takuya's favourites: a forward bend and a hip stretch go into almost every day.
+  fold: ['forward-fold', 'forward-fold', 'long-seat-fold', 'hamstring'],
+  hip: ['hip-flexor', 'hip-flexor', 'deep-squat-stretch', 'inner-thigh'],
 };
 
 const SLOT = {
-  squat: ['squat', 'wide-squat', 'wall-sit'],
-  hinge: ['hip-lift', 'good-morning', 'single-hip-lift'],
-  calf: ['calf-raise', 'single-calf-raise'],
-  chest: ['wall-pushup', 'incline-pushup', 'pushup', 'wide-pushup'],
-  shoulder: ['shoulder-tap', 'pike-pushup'],
-  arm: ['chair-dip', 'wall-pushup'],
-  curlUp: ['curl-up', 'reverse-crunch', 'hollow-hold'],
-  sideCore: ['side-plank', 'side-leg-raise'],
+  // favourites, always the plain exercise (the easy / hard versions are in each exercise's text)
+  squat: ['squat'],
+  pushup: ['pushup'],
+  plank: ['plank'],
+  legAux: ['hip-lift', 'good-morning', 'calf-raise', 'wide-squat', 'single-hip-lift', 'single-calf-raise', 'wall-sit'],
+    shoulder: ['shoulder-tap', 'pike-pushup'],
+  arm: ['wall-pushup', 'chair-dip', 'incline-pushup', 'diamond-pushup', 'wide-pushup'],
+  curlUp: ['crunch', 'curl-up', 'reverse-crunch', 'bicycle-crunch', 'leg-raise', 'hollow-hold'],
+  sideCore: ['side-plank', 'side-leg-raise', 'russian-twist', 'dead-bug'],
   backCore: ['bird-dog', 'dead-bug', 'superman'],
-  lunge: ['split-squat', 'back-lunge', 'side-lunge'],
-  balance: ['single-leg-stand', 'single-leg-reach'],
+  lunge: ['front-lunge', 'split-squat', 'single-leg-stand', 'back-lunge', 'single-leg-reach', 'step-up', 'side-lunge'],
   gluteSide: ['clamshell', 'side-leg-raise', 'donkey-kick'],
   pull: ['superman', 'towel-pulldown', 'prone-y', 'snow-angel'],
   scap: ['prone-y', 'snow-angel', 'towel-pulldown'],
-  plank: ['plank', 'mountain-climber', 'dead-bug'],
-  light: ['calf-raise', 'single-leg-stand', 'wall-pushup', 'bird-dog'],
+  light: ['squat', 'pushup', 'plank', 'calf-raise', 'bird-dog', 'mountain-climber'],
 };
 
-// Sunday first (matches Date.getDay()).
+// Sunday first (matches Date.getDay()). Every day has a forward bend and a hip stretch.
 const THEMES: DayTheme[] = [
-  { title: 'ストレッチの日', warmup: 'cat-cow', strength: [SLOT.light], stretch: [AREA.ham, AREA.hip, AREA.back, AREA.shoulder, AREA.side] },
-  { title: '下半身', warmup: 'leg-swing', strength: [SLOT.squat, SLOT.hinge, SLOT.calf], stretch: [AREA.ham, AREA.quad, AREA.calf] },
-  { title: '上半身（押す）', warmup: 'arm-circle', strength: [SLOT.chest, SLOT.shoulder, SLOT.arm], stretch: [AREA.chest, AREA.shoulder, AREA.neck] },
-  { title: '体幹（ビッグ3）', warmup: 'cat-cow', strength: [SLOT.curlUp, SLOT.sideCore, SLOT.backCore], stretch: [AREA.back, AREA.side, AREA.glute] },
-  { title: '片脚・バランス', warmup: 'leg-swing', strength: [SLOT.lunge, SLOT.balance, SLOT.gluteSide], stretch: [AREA.hip, AREA.quad, AREA.glute] },
-  { title: '上半身（引く）', warmup: 'arm-circle', strength: [SLOT.pull, SLOT.scap, SLOT.arm], stretch: [AREA.shoulder, AREA.back, AREA.chest] },
-  { title: '体幹・バランス', warmup: 'cat-cow', strength: [SLOT.plank, SLOT.balance, ['hip-lift', 'single-hip-lift']], stretch: [AREA.ham, AREA.twist, AREA.belly] },
+  { title: 'ストレッチの日', warmup: ['cat-cow'], strength: [SLOT.light], stretch: [AREA.fold, AREA.hip, AREA.back, AREA.shoulder, AREA.side] },
+  { title: '下半身＋プランク', warmup: ['leg-swing', 'high-knees'], strength: [SLOT.squat, SLOT.legAux, SLOT.plank], stretch: [AREA.fold, AREA.hip, AREA.quad] },
+  { title: '上半身（押す）', warmup: ['arm-circle', 'jumping-jack'], strength: [SLOT.pushup, SLOT.shoulder, SLOT.arm], stretch: [AREA.fold, AREA.hip, AREA.chest] },
+  { title: '体幹', warmup: ['cat-cow', 'jumping-jack'], strength: [SLOT.curlUp, SLOT.sideCore, SLOT.plank], stretch: [AREA.fold, AREA.hip, AREA.back] },
+  { title: '片脚・下半身', warmup: ['leg-swing', 'high-knees'], strength: [SLOT.squat, SLOT.lunge, SLOT.gluteSide], stretch: [AREA.fold, AREA.hip, AREA.glute] },
+  { title: '上半身（引く）', warmup: ['arm-circle', 'jumping-jack'], strength: [SLOT.pushup, SLOT.pull, SLOT.scap], stretch: [AREA.fold, AREA.hip, AREA.shoulder] },
+  { title: '全身（基本の3種目）', warmup: ['jumping-jack', 'cat-cow'], strength: [SLOT.squat, SLOT.pushup, SLOT.plank], stretch: [AREA.fold, AREA.hip, AREA.twist] },
 ];
 
 export const dayTheme = (date: string): string => THEMES[new Date(`${date}T12:00:00`).getDay()].title;
@@ -391,10 +444,10 @@ export function goalMenu(date: string, stage = 2): Exercise[] {
   const theme = THEMES[dow];
   const week = weekNo(date);
   const used = new Set<string>();
-  const warm = byId(theme.warmup)!;
+  const warm = byId(pick(theme.warmup, week))!;
   used.add(warm.id);
   const strength = theme.strength.map((slot, i) => pickUnique(unlockedOf(slot, stage), spin(week, i, unlockedOf(slot, stage).length), used));
-  const stretches = theme.stretch.map((area, i) => pickUnique(area, spin(week, i + 3, area.length), used));
+  const stretches = theme.stretch.map((area, i) => pickUnique(area, spin(week + dow, i + 3, area.length), used));
   return [warm, ...strength, ...stretches];
 }
 
