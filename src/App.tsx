@@ -13,12 +13,14 @@ import { Check } from './screens/Check';
 import { Records } from './screens/Records';
 import { Settings } from './screens/Settings';
 import { Pet } from './screens/Pet';
+import { Effects } from './screens/Effects';
 import { markSeen } from './lib/pet';
 
 export type View =
   | { name: 'home' }
   | { name: 'records' }
   | { name: 'pet' }
+  | { name: 'effects' }
   | { name: 'settings' }
   | { name: 'pick' }
   | { name: 'check' }
@@ -79,13 +81,14 @@ export function App() {
   if (!state) return <div className="app muted">読み込み中…</div>;
 
   const props = { state, update, today, go: setView };
-  const tab = view.name === 'home' || view.name === 'records' || view.name === 'pet' || view.name === 'settings' ? view.name : undefined;
+  const tab = view.name === 'effects' ? 'home' : view.name === 'home' || view.name === 'records' || view.name === 'pet' || view.name === 'settings' ? view.name : undefined;
 
   return (
     <div className="app">
       {view.name === 'home' && <Home {...props} />}
       {view.name === 'records' && <Records {...props} />}
       {view.name === 'pet' && <Pet {...props} />}
+      {view.name === 'effects' && <Effects {...props} />}
       {view.name === 'settings' && <Settings {...props} replace={commit} />}
       {view.name === 'pick' && <Pick {...props} />}
       {view.name === 'check' && <Check {...props} />}

@@ -55,6 +55,7 @@ export interface Profile {
   stageBase?: number; // stage index (0-4) that applies in the first weeks
   stageShift?: number; // weeks the progression was held back (hard days, long breaks)
   stageAdjusted?: string; // last day an automatic hold/step-back was applied
+  weightKg?: number; // optional, only used for the calorie estimate
 }
 
 export interface CardStock {

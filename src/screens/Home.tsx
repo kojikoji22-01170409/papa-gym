@@ -8,6 +8,9 @@ import { dayTheme, goalMenu, shortLabel } from '../lib/exercises';
 import { amountFor, planFor } from '../lib/plan';
 import { totals, weeklyReps } from '../lib/stats';
 import { Muki } from '../components/Muki';
+import { Rings } from '../components/Rings';
+import { achievedWeeks, weekEffect } from '../lib/effects';
+import { weekLine } from './Effects';
 import { Hearts, MOOD_TEXT } from './Pet';
 import { STAGE_NAMES, hatchPending, petView, speechFor } from '../lib/pet';
 
@@ -37,6 +40,7 @@ export function Home({ state, update, today, go }: ScreenProps) {
   const [lastWeek, thisWeek] = weeks;
   const total = totals(state);
   const pet = petView(state, today);
+  const effect = weekEffect(state, today);
 
   return (
     <>
@@ -101,6 +105,13 @@ export function Home({ state, update, today, go }: ScreenProps) {
           <div className="muted">ムキたまタブで名前をつけてあげましょう ›</div>
         </button>
       )}
+
+      <button className="card" style={{ width: '100%', textAlign: 'left' }} onClick={() => go({ name: 'effects' })}>
+        <div className="row spread"><b>今週の健康の成果</b><span className="muted">くわしく見る ›</span></div>
+        <Rings week={effect} size={72} />
+        <div style={{ textAlign: 'center' }}>{weekLine(effect.strengthDays, effect.daysLeft)}</div>
+        <div className="muted" style={{ textAlign: 'center' }}>基準を達成した週：累計{achievedWeeks(state)}週</div>
+      </button>
 
       {state.logs.length > 0 && (
         <button className="card" style={{ width: '100%', textAlign: 'left' }} onClick={() => go({ name: 'records' })}>
